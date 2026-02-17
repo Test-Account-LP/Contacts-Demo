@@ -1,0 +1,330 @@
+@import "tailwindcss";
+
+:root {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+}
+
+/* Base Transition for smooth theme switching */
+body,
+div,
+span,
+button,
+input,
+textarea {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* =========================================
+   METAL THEMES (Level Unlocks)
+   ========================================= */
+
+/* GOLD THEME (Luxury, Wealth) */
+[data-theme='gold'] {
+    --bg-gold-light: #FFFBE6;
+    --bg-gold-dark: #FFD666;
+    --text-gold-dark: #584617;
+    --text-gold-muted: #8C7C4F;
+    --border-gold: #FFE58F;
+}
+
+[data-theme='gold'] .bg-white {
+    background-color: var(--bg-gold-light) !important;
+}
+
+[data-theme='gold'] .bg-slate-50,
+[data-theme='gold'] .bg-slate-100 {
+    background-color: #FFF1B8 !important;
+}
+
+[data-theme='gold'] .text-slate-900 {
+    color: var(--text-gold-dark) !important;
+}
+
+[data-theme='gold'] .text-slate-500,
+[data-theme='gold'] .text-slate-400 {
+    color: var(--text-gold-muted) !important;
+}
+
+[data-theme='gold'] .border-slate-100,
+[data-theme='gold'] .border-slate-200 {
+    border-color: var(--border-gold) !important;
+}
+
+[data-theme='gold'] .bg-slate-900 {
+    background-color: #614700 !important;
+    /* Dark Gold/Bronze for buttons */
+    color: #FFFBE6 !important;
+}
+
+
+/* SILVER THEME (Sleek, Modern) */
+[data-theme='silver'] {
+    --bg-silver-light: #F0F5FF;
+    --bg-silver-accent: #D6E4FF;
+    --text-silver-dark: #000000;
+    --text-silver-muted: #595959;
+    --border-silver: #ADC6FF;
+}
+
+[data-theme='silver'] .bg-white {
+    background-color: var(--bg-silver-light) !important;
+}
+
+[data-theme='silver'] .bg-slate-50,
+[data-theme='silver'] .bg-slate-100 {
+    background-color: var(--bg-silver-accent) !important;
+}
+
+[data-theme='silver'] .text-slate-900 {
+    color: var(--text-silver-dark) !important;
+}
+
+[data-theme='silver'] .text-slate-500 {
+    color: var(--text-silver-muted) !important;
+}
+
+[data-theme='silver'] .border-slate-100,
+[data-theme='silver'] .border-slate-200 {
+    border-color: var(--border-silver) !important;
+}
+
+[data-theme='silver'] .bg-slate-900 {
+    background-color: #2F54EB !important;
+    /* Gecko Blue / Silver Accent */
+    color: white !important;
+}
+
+
+/* BRONZE THEME (Industrial, Warm) */
+[data-theme='bronze'] {
+    --bg-bronze-light: #FFF7E6;
+    --bg-bronze-accent: #FFD591;
+    --text-bronze-dark: #431407;
+    --text-bronze-muted: #9254DE;
+    /* Surprise pop color or just brown */
+    --border-bronze: #FA8C16;
+}
+
+[data-theme='bronze'] .bg-white {
+    background-color: var(--bg-bronze-light) !important;
+}
+
+[data-theme='bronze'] .bg-slate-50,
+[data-theme='bronze'] .bg-slate-100 {
+    background-color: var(--bg-bronze-accent) !important;
+}
+
+[data-theme='bronze'] .text-slate-900 {
+    color: var(--text-bronze-dark) !important;
+}
+
+[data-theme='bronze'] .text-slate-500 {
+    color: #78350F !important;
+}
+
+[data-theme='bronze'] .border-slate-100,
+[data-theme='bronze'] .border-slate-200 {
+    border-color: #FFBB96 !important;
+}
+
+[data-theme='bronze'] .bg-slate-900 {
+    background-color: #873800 !important;
+}
+
+
+/* PLATINUM THEME (Exclusive, Cool Blueish White) */
+[data-theme='platinum'] {
+    --bg-plat-light: #F0F9FF;
+    --bg-plat-accent: #E0F2FE;
+    --border-plat: #BAE6FD;
+}
+
+[data-theme='platinum'] .bg-white {
+    background-color: var(--bg-plat-light) !important;
+}
+
+[data-theme='platinum'] .bg-slate-50,
+[data-theme='platinum'] .bg-slate-100 {
+    background-color: var(--bg-plat-accent) !important;
+}
+
+[data-theme='platinum'] .border-slate-100,
+[data-theme='platinum'] .border-slate-200 {
+    border-color: var(--border-plat) !important;
+}
+
+[data-theme='platinum'] .bg-slate-900 {
+    background-color: #0C4A6E !important;
+}
+
+/* DIAMOND THEME (Icy, Brilliant, Cyan) */
+[data-theme='diamond'] {
+    --bg-diamond-light: #F0FDFA;
+    /* Teal 50 */
+    --bg-diamond-accent: #CCFBF1;
+    /* Teal 100 */
+    --border-diamond: #5EEAD4;
+    /* Teal 300 */
+}
+
+[data-theme='diamond'] .bg-white {
+    background-color: var(--bg-diamond-light) !important;
+}
+
+[data-theme='diamond'] .bg-slate-50,
+[data-theme='diamond'] .bg-slate-100 {
+    background-color: var(--bg-diamond-accent) !important;
+}
+
+[data-theme='diamond'] .border-slate-100,
+[data-theme='diamond'] .border-slate-200 {
+    border-color: var(--border-diamond) !important;
+}
+
+[data-theme='diamond'] .text-slate-900 {
+    color: #115E59 !important;
+    /* Teal 800 */
+}
+
+[data-theme='diamond'] .bg-slate-900 {
+    background-color: #134E4A !important;
+}
+
+
+/* =========================================
+   COOL THEMES (Vibe Themes)
+   ========================================= */
+
+/* SPACE THEME (Dark Mode, Neon) */
+[data-theme='space'] {
+    --bg-space-dark: #020617;
+    --bg-space-card: #0F172A;
+    --text-space-light: #E2E8F0;
+    --text-space-muted: #94A3B8;
+    --border-space: #1E293B;
+}
+
+[data-theme='space'] .bg-white {
+    background-color: var(--bg-space-card) !important;
+}
+
+[data-theme='space'] .bg-slate-50,
+[data-theme='space'] .bg-slate-100 {
+    background-color: #1E293B !important;
+}
+
+[data-theme='space'] .text-slate-900 {
+    color: var(--text-space-light) !important;
+}
+
+[data-theme='space'] .text-slate-500,
+[data-theme='space'] .text-slate-400 {
+    color: var(--text-space-muted) !important;
+}
+
+[data-theme='space'] .border-slate-100,
+[data-theme='space'] .border-slate-200,
+[data-theme='space'] .border-slate-300 {
+    border-color: var(--border-space) !important;
+}
+
+[data-theme='space'] .bg-slate-900 {
+    background-color: #3B82F6 !important;
+    /* Neon Blue Accent */
+    color: white !important;
+}
+
+/* RETRO THEME (Vaporwave, 90s) */
+[data-theme='retro'] .bg-white {
+    background-color: #FFF0F5 !important;
+    /* Lavender Blush */
+}
+
+[data-theme='retro'] .bg-slate-50,
+[data-theme='retro'] .bg-slate-100 {
+    background-color: #FFE4E1 !important;
+    /* Misty Rose */
+}
+
+[data-theme='retro'] .text-slate-900 {
+    color: #191970 !important;
+    /* Midnight Blue */
+}
+
+[data-theme='retro'] .text-slate-500 {
+    color: #C71585 !important;
+    /* Medium Violet Red */
+}
+
+[data-theme='retro'] .border-slate-100,
+[data-theme='retro'] .border-slate-200 {
+    border-color: #FF69B4 !important;
+    /* Hot Pink */
+}
+
+[data-theme='retro'] .bg-slate-900 {
+    background-color: #00CED1 !important;
+    /* Dark Turquoise */
+    color: black !important;
+}
+
+/* BMX DIRT THEME (Earthy, Outdoors) */
+[data-theme='bmx'] .bg-white {
+    background-color: #FEF3C7 !important;
+    /* Amber 100 */
+}
+
+[data-theme='bmx'] .bg-slate-50,
+[data-theme='bmx'] .bg-slate-100 {
+    background-color: #D6D3D1 !important;
+    /* Stone 300 */
+}
+
+[data-theme='bmx'] .text-slate-900 {
+    color: #451a03 !important;
+    /* Amber 950 */
+}
+
+[data-theme='bmx'] .text-slate-500 {
+    color: #78350F !important;
+}
+
+[data-theme='bmx'] .border-slate-100,
+[data-theme='bmx'] .border-slate-200 {
+    border-color: #A8A29E !important;
+}
+
+[data-theme='bmx'] .bg-slate-900 {
+    background-color: #78350F !important;
+    /* Amber 900 */
+}
+
+/* NIGHT TRAIN (Mono Dark) */
+[data-theme='train'] .bg-white {
+    background-color: #171717 !important;
+    /* Neutral 900 */
+}
+
+[data-theme='train'] .bg-slate-50,
+[data-theme='train'] .bg-slate-100 {
+    background-color: #262626 !important;
+    /* Neutral 800 */
+}
+
+[data-theme='train'] .text-slate-900 {
+    color: #E5E5E5 !important;
+}
+
+[data-theme='train'] .text-slate-500 {
+    color: #A3A3A3 !important;
+}
+
+[data-theme='train'] .border-slate-100,
+[data-theme='train'] .border-slate-200 {
+    border-color: #404040 !important;
+}
+
+[data-theme='train'] .bg-slate-900 {
+    background-color: #525252 !important;
+}
