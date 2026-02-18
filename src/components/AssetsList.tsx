@@ -24,13 +24,13 @@ export default function AssetsList() {
                 <input
                     type="text"
                     placeholder="Search assets"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-10 pr-4 py-3 bg-white/50 border border-white/60 shadow-inner rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder:text-slate-400"
                 />
             </div>
 
             <div className="flex flex-col gap-4">
                 {assets.map((asset, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors">
+                    <div key={index} className="flex items-center justify-between p-3 metallic-card rounded-xl cursor-pointer hover:scale-[1.02] transition-transform">
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-full ${asset.color} flex items-center justify-center font-bold`}>
                                 {asset.icon}

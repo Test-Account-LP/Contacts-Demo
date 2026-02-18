@@ -11,8 +11,9 @@ import ProEvaluationModal from './components/ProEvaluationModal';
 import TransactionModal from './components/TransactionModal';
 import PointsScreen from './pages/PointsScreen';
 import ThemesScreen from './pages/ThemesScreen';
+import PeraQuestsDashboard from './pages/PeraQuestsDashboard';
 
-type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen';
+type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests';
 
 export interface Transaction {
   date: string;
@@ -34,6 +35,8 @@ export interface Contact {
   isPro?: boolean;
   members?: Contact[]; // For groups
   role?: 'admin' | 'member'; // For groups
+  followers?: number;
+  following?: number;
 }
 
 export interface UserProfile {
@@ -46,6 +49,7 @@ export interface UserProfile {
   followers: number;
   following: number;
   completedQuests: string[];
+  hasSeenPeraQuestIntro: boolean;
 }
 
 export type Theme = 'default' | 'retro' | 'space' | 'bmx' | 'train' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
@@ -64,7 +68,8 @@ function App() {
     points: 85420,
     followers: 1240,
     following: 42,
-    completedQuests: []
+    completedQuests: [],
+    hasSeenPeraQuestIntro: false
   });
 
   const [contacts, setContacts] = useState<Contact[]>([
@@ -81,6 +86,8 @@ function App() {
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Simba',
       bio: "Everything the light touches is our kingdom. But a king's time as ruler rises and falls like the sun. One day, the sun will set on my time here, and will rise with you as the new king.",
       pnl: '+$5,000,000',
+      followers: 850000,
+      following: 12,
       history: [
         { date: '2022-11-10', amount: '500,000', type: 'received', asset: 'ALGO' },
         { date: '2022-08-15', amount: '1,200', type: 'sent', asset: 'USDC' },
@@ -218,6 +225,7 @@ function App() {
           isPro={isPro}
           onTryPro={(feature) => verifyProAccess(feature)}
           onThemesClick={() => navigateTo('themes-screen')}
+          onPeraQuestsClick={() => navigateTo('pera-quests')}
         />
       )}
       {currentScreen === 'profile-contacts' && (
@@ -271,6 +279,15 @@ function App() {
         <PointsScreen
           profile={profile}
           onBack={() => navigateTo('profile-contacts')}
+          onQuestComplete={handleQuestComplete}
+        />
+      )}
+
+      {currentScreen === 'pera-quests' && (
+        <PeraQuestsDashboard
+          profile={profile}
+          onBack={() => navigateTo('menu')}
+          onUpdateProfile={handleUpdateProfile}
           onQuestComplete={handleQuestComplete}
         />
       )}

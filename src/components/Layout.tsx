@@ -12,8 +12,8 @@ interface LayoutProps {
 
 export default function Layout({ children, onHomeClick, onMenuClick, currentTheme = 'default' }: LayoutProps) {
     return (
-        <div data-theme={currentTheme} className="min-h-screen flex justify-center bg-slate-100 dark:bg-slate-900 font-sans">
-            <div className="w-full max-w-md bg-white text-slate-900 min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+        <div data-theme={currentTheme} className="min-h-screen flex justify-center bg-slate-200 font-sans p-4 sm:p-0">
+            <div className="w-full max-w-md bg-slate-50/90 backdrop-blur-xl text-slate-900 min-h-screen shadow-2xl relative overflow-hidden flex flex-col sm:rounded-[3rem] sm:my-8 sm:border-[8px] sm:border-slate-800 ring-1 ring-black/5">
                 <Header />
                 <main className="flex-1 px-4 py-4 overflow-y-auto pb-24">
                     {children}

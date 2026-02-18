@@ -90,7 +90,7 @@ export default function ProfileContactsScreen({
             </div>
 
             {/* Profile Section */}
-            <div className="mx-4 bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 rounded-3xl mb-8 relative shadow-xl overflow-hidden">
+            <div className="mx-4 metallic-card !bg-gradient-to-br !from-slate-900 !to-slate-800 text-white p-6 rounded-3xl mb-8 relative shadow-xl overflow-hidden border-slate-700">
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
@@ -288,7 +288,7 @@ export default function ProfileContactsScreen({
                             <div
                                 key={contact.id}
                                 onClick={() => onContactClick(contact.id)}
-                                className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all hover:border-teal-100 hover:bg-teal-50/10 cursor-pointer"
+                                className="p-4 metallic-card rounded-2xl flex items-center gap-4 hover:shadow-lg transition-all hover:bg-white/60 cursor-pointer active:scale-[0.99]"
                             >
                                 {contact.type === 'group' ? (
                                     <div className="relative shrink-0 w-12 h-12">

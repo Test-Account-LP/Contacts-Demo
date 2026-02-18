@@ -2,10 +2,10 @@ export default function PortfolioSummary() {
     return (
         <div className="px-2 py-4">
             {/* Tabs */}
-            <div className="flex bg-slate-100 rounded-full p-1 mb-6">
-                <button className="flex-1 py-1.5 px-4 rounded-full bg-white shadow-sm text-sm font-semibold text-slate-900">Overview</button>
-                <button className="flex-1 py-1.5 px-4 rounded-full text-sm font-medium text-slate-500">NTFs</button>
-                <button className="flex-1 py-1.5 px-4 rounded-full text-sm font-medium text-slate-500">History</button>
+            <div className="flex metallic-card rounded-full p-1 mb-6">
+                <button className="flex-1 py-1.5 px-4 rounded-full bg-slate-800 text-white shadow-md text-sm font-semibold">Overview</button>
+                <button className="flex-1 py-1.5 px-4 rounded-full text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">NTFs</button>
+                <button className="flex-1 py-1.5 px-4 rounded-full text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">History</button>
             </div>
 
             {/* Balance */}
@@ -15,7 +15,7 @@ export default function PortfolioSummary() {
                 </h1>
                 <div className="flex items-center justify-center gap-2 mt-1">
                     <span className="text-slate-500 text-sm">$15,594.15</span>
-                    <span className="text-teal-500 text-sm font-medium flex items-center bg-teal-50 px-1.5 py-0.5 rounded">
+                    <span className="text-teal-600 text-sm font-bold flex items-center bg-teal-50/50 border border-teal-100 px-1.5 py-0.5 rounded shadow-sm">
                         + $16,02 <span className="ml-1">↑ 20,24%</span>
                     </span>
                 </div>

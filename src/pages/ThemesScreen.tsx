@@ -19,11 +19,11 @@ export default function ThemesScreen({ currentTheme, onSelectTheme, onBack, user
     ];
 
     const metalThemes: { id: Theme; name: string; level: number; colors: string }[] = [
-        { id: 'bronze', name: 'Bronze', level: 5, colors: 'bg-orange-800 border-orange-600' },
-        { id: 'silver', name: 'Silver', level: 10, colors: 'bg-slate-400 border-slate-300' },
-        { id: 'gold', name: 'Gold', level: 25, colors: 'bg-amber-400 border-yellow-200' },
-        { id: 'platinum', name: 'Platinum', level: 50, colors: 'bg-cyan-100 border-cyan-300' },
-        { id: 'diamond', name: 'Diamond', level: 100, colors: 'bg-blue-200 border-blue-400' },
+        { id: 'bronze', name: 'Bronze', level: 5, colors: 'bg-gradient-to-br from-orange-200 via-amber-600 to-orange-900 border-orange-400 text-orange-50' },
+        { id: 'silver', name: 'Silver', level: 10, colors: 'bg-gradient-to-br from-slate-100 via-slate-400 to-slate-600 border-slate-300 text-slate-50' },
+        { id: 'gold', name: 'Gold', level: 25, colors: 'bg-gradient-to-br from-yellow-100 via-yellow-400 to-yellow-700 border-yellow-200 text-yellow-50' },
+        { id: 'platinum', name: 'Platinum', level: 50, colors: 'bg-gradient-to-br from-cyan-50 via-cyan-200 to-cyan-600 border-cyan-100 text-cyan-50' },
+        { id: 'diamond', name: 'Diamond', level: 100, colors: 'bg-gradient-to-br from-blue-100 via-indigo-400 to-purple-800 border-indigo-200 text-indigo-50' },
     ];
 
     return (
@@ -72,10 +72,10 @@ export default function ThemesScreen({ currentTheme, onSelectTheme, onBack, user
                                     key={theme.id}
                                     disabled={isLocked}
                                     onClick={() => !isLocked && onSelectTheme(theme.id)}
-                                    className={`relative h-24 rounded-2xl border-2 transition-all overflow-hidden flex flex-col items-center justify-center gap-1
+                                    className={`relative h-32 rounded-2xl border-2 transition-all overflow-hidden flex flex-col items-center justify-center gap-1 shadow-lg
                                 ${theme.colors} 
-                                ${isLocked ? 'grayscale opacity-40 cursor-not-allowed' : 'opacity-90 hover:opacity-100'}
-                                ${currentTheme === theme.id ? 'ring-2 ring-white scale-[1.02] shadow-xl opacity-100 grayscale-0' : ''}
+                                ${isLocked ? 'grayscale opacity-60 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-2xl hover:brightness-110'}
+                                ${currentTheme === theme.id ? 'ring-4 ring-white/50 scale-[1.05] shadow-2xl opacity-100 grayscale-0 z-10' : ''}
                             `}
                                 >
                                     <span className="font-bold text-lg drop-shadow-md text-shadow">{theme.name}</span>

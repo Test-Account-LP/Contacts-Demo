@@ -1,13 +1,15 @@
-import { ScanLine, Settings, CreditCard, Layers, ArrowRightLeft, Download, Upload, Users, User, Plus, QrCode, Palette, Lock } from 'lucide-react';
+import { ScanLine, Settings, CreditCard, Layers, ArrowRightLeft, Download, Upload, Users, User, Plus, QrCode, Palette, Lock, BookOpen } from 'lucide-react';
 
 interface MenuScreenProps {
     onProfileClick: () => void;
     isPro: boolean;
     onTryPro: (feature: string) => void;
     onThemesClick: () => void;
+    onPeraQuestsClick: () => void;
 }
 
-export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick }: MenuScreenProps) {
+export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick, onPeraQuestsClick }: MenuScreenProps) {
+    console.log('Rendering MenuScreen - Updated'); // Debugging update
     const menuItems = [
         { icon: <Layers size={22} />, label: 'NFTs', onClick: () => console.log('NFTs') },
         { icon: <ArrowRightLeft size={22} />, label: 'Transfer', onClick: () => console.log('Transfer'), badge: 'NEW' },
@@ -29,7 +31,7 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
             </div>
 
             {/* Cards Section */}
-            <div className="bg-slate-50 p-5 rounded-2xl mb-4 relative overflow-hidden">
+            <div className="metallic-card p-5 rounded-2xl mb-4 relative overflow-hidden">
                 <div className="flex items-center gap-2 font-bold mb-2">
                     <CreditCard size={20} />
                     Cards
@@ -54,12 +56,34 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
             <div className="grid grid-cols-2 gap-3 mb-6">
                 <div
                     onClick={onProfileClick}
-                    className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 active:scale-95 transition-transform flex flex-col justify-between h-32"
+                    className="metallic-card p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32"
                 >
                     <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
                         <User className="text-slate-900" size={20} />
                     </div>
                     <span className="font-bold text-slate-900">Profile & Contacts</span>
+                </div>
+
+                {/* Pera Quests - New Item */}
+                <div
+                    onClick={onPeraQuestsClick}
+                    className="bg-gradient-to-br from-sky-50 to-white p-4 rounded-3xl shadow-lg shadow-sky-100 border border-sky-100 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden"
+                >
+                    {/* Decorative Elements */}
+                    <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
+                        <BookOpen size={64} className="text-sky-900" />
+                    </div>
+                    <div className="absolute bottom-10 right-2 opacity-20">
+                        <div className="w-8 h-8 rounded-full border-2 border-sky-900"></div>
+                    </div>
+
+                    <div className="w-10 h-10 bg-white/60 backdrop-blur-sm rounded-full flex items-center justify-center text-sky-700 shadow-sm">
+                        <BookOpen size={20} />
+                    </div>
+                    <div>
+                        <span className="font-bold text-sky-900 block leading-tight">Pera Quests</span>
+                        <span className="text-[10px] uppercase font-bold text-sky-600 tracking-wider">Earn Rewards</span>
+                    </div>
                 </div>
 
                 <div className="bg-slate-900 p-4 rounded-3xl shadow-sm shadow-slate-200 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden">
@@ -92,7 +116,7 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
                     <div
                         key={index}
                         onClick={item.onClick}
-                        className="bg-slate-50 p-4 rounded-3xl border border-slate-100 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden group hover:bg-slate-100"
+                        className="metallic-card p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden group"
                     >
                         {item.badge && (
                             <div className="absolute top-3 right-3 px-1.5 py-0.5 bg-teal-400 text-teal-900 text-[10px] font-bold uppercase rounded">{item.badge}</div>

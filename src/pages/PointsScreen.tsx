@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check } from 'lucide-react';
 import type { UserProfile } from '../App';
-import QuestModal, { type Quest } from '../components/QuestModal';
+import QuestModal from '../components/QuestModal';
+import LevelBreakdownModal from '../components/LevelBreakdownModal';
+import { quests, type Quest } from '../data/quests';
 
 interface PointsScreenProps {
     profile: UserProfile;
@@ -10,9 +12,11 @@ interface PointsScreenProps {
 }
 
 export default function PointsScreen({ profile, onBack, onQuestComplete }: PointsScreenProps) {
-    const nextLevelPoints = 15000;
-    const progress = (profile.points / nextLevelPoints) * 100;
+    const POINTS_PER_LEVEL = 15000;
+    const currentLevelPoints = profile.points % POINTS_PER_LEVEL;
+    const progress = (currentLevelPoints / POINTS_PER_LEVEL) * 100;
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+    const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
 
     const earnActions = [
         { icon: <Repeat size={18} className="text-blue-500" />, title: 'Swap Assets', points: '+50 pts', limit: 'Max 5/day' },
@@ -21,48 +25,6 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
         { icon: <Globe size={18} className="text-sky-500" />, title: 'Governance Vote', points: '+500 pts', limit: 'Per Session' },
         { icon: <Zap size={18} className="text-amber-500" />, title: 'Daily Spin', points: '+10-100 pts', limit: 'Daily' },
         { icon: <Share2 size={18} className="text-pink-500" />, title: 'Bridge Assets', points: '+200 pts', limit: 'Monthly' },
-    ];
-
-    const quests: Quest[] = [
-        {
-            id: 'quest_custody',
-            title: 'What is a Self-Custodial Wallet?',
-            description: 'Learn the fundamentals of self-custody and why holding your own keys matters.',
-            timeEstimate: '2-3 mins',
-            points: 200,
-            successMessage: 'You understand the fundamentals of self-custody. Your keys. Your control.',
-            questions: [
-                { id: 1, question: 'What does "self-custodial" mean?', options: ['A bank controls your funds', 'You control your private keys', 'A third-party exchange holds your assets'], correctAnswerIndex: 1 },
-                { id: 2, question: 'Why is controlling your private keys important?', options: ['It allows you to reset your password easily', 'It ensures only you can authorize transactions', 'It makes transactions reversible'], correctAnswerIndex: 1 },
-                { id: 3, question: 'If you lose access to your private keys in a self-custodial wallet, what happens?', options: ['The wallet provider can recover them for you', 'Your funds may be permanently inaccessible', 'The blockchain automatically restores access'], correctAnswerIndex: 1 }
-            ]
-        },
-        {
-            id: 'quest_fund',
-            title: 'What is Pera Fund?',
-            description: 'Discover how Pera Fund simplifies moving capital into Algorand from other networks.',
-            timeEstimate: '2-3 mins',
-            points: 200,
-            successMessage: 'Funding simplified. You’re ready to move value with confidence.',
-            questions: [
-                { id: 1, question: 'What is the primary purpose of Pera Fund?', options: ['To lend assets to other users', 'To move funds into Algorand from fiat or other networks', 'To lock tokens for governance'], correctAnswerIndex: 1 },
-                { id: 2, question: 'Does using Pera Fund require giving up custody of your wallet?', options: ['Yes, funds are controlled by a third party', 'No, you remain in control of your wallet', 'Only during business hours'], correctAnswerIndex: 1 },
-                { id: 3, question: 'Why is direct funding important?', options: ['It reduces friction when entering the ecosystem', 'It increases transaction times', 'It removes blockchain transparency'], correctAnswerIndex: 0 }
-            ]
-        },
-        {
-            id: 'quest_swap',
-            title: 'What is Pera Swap?',
-            description: 'Understand how Pera Swap enables seamless in-wallet asset exchanges with speed and security.',
-            timeEstimate: '2-3 mins',
-            points: 200,
-            successMessage: 'Swap smarter. Stay in control.',
-            questions: [
-                { id: 1, question: 'What does Pera Swap allow users to do?', options: ['Exchange assets directly within the wallet', 'Convert crypto into airline miles', 'Freeze tokens permanently'], correctAnswerIndex: 0 },
-                { id: 2, question: 'When using Pera Swap, who controls your assets?', options: ['A centralized exchange', 'You, through your wallet', 'A random validator'], correctAnswerIndex: 1 },
-                { id: 3, question: 'What is a key benefit of in-wallet swaps?', options: ['Faster and more seamless asset management', 'Mandatory identity verification for every swap', 'Delayed settlement windows'], correctAnswerIndex: 0 }
-            ]
-        }
     ];
 
     const achievements = [
@@ -105,13 +67,18 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                                     <span className="text-sm font-normal text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">Gold Member</span>
                                 </h2>
                             </div>
-                            <Trophy size={32} className="text-amber-400" />
+                            <button
+                                onClick={() => setIsBreakdownModalOpen(true)}
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95"
+                            >
+                                <Trophy size={32} className="text-amber-400" />
+                            </button>
                         </div>
 
                         <div className="mb-6">
                             <div className="flex justify-between text-xs font-medium text-slate-400 mb-2">
-                                <span>{profile.points.toLocaleString()} pts</span>
-                                <span>{nextLevelPoints.toLocaleString()} pts</span>
+                                <span>{currentLevelPoints.toLocaleString()} pts</span>
+                                <span>{POINTS_PER_LEVEL.toLocaleString()} pts</span>
                             </div>
                             <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
                                 <div className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full" style={{ width: `${progress}%` }}></div>
@@ -148,7 +115,7 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                                 <div
                                     key={quest.id}
                                     onClick={() => !isCompleted && setSelectedQuest(quest)}
-                                    className={`bg-white p-4 rounded-2xl border transition-all ${isCompleted ? 'border-teal-100 bg-teal-50/20' : 'border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 cursor-pointer'}`}
+                                    className={`p-4 rounded-2xl border transition-all ${isCompleted ? 'metallic-card bg-teal-50/20 border-teal-200/50' : 'metallic-card hover:shadow-lg hover:shadow-teal-500/10 cursor-pointer active:scale-[0.98]'}`}
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <h4 className={`font-bold text-base ${isCompleted ? 'text-teal-800' : 'text-slate-900'}`}>{quest.title}</h4>
@@ -172,7 +139,7 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                 {/* How to Earn */}
                 <div>
                     <h3 className="font-bold text-slate-900 mb-3 ml-1">How to Earn</h3>
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 divide-y divide-slate-50">
+                    <div className="metallic-card rounded-2xl divide-y divide-slate-100/50">
                         {earnActions.map((action, i) => (
                             <div key={i} className="p-4 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -218,8 +185,8 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                             <button className="px-3 py-1 text-slate-500">Friends</button>
                         </div>
                     </div>
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <div className="flex items-center text-xs font-bold text-slate-400 p-3 bg-slate-50 border-b border-slate-100">
+                    <div className="metallic-card rounded-2xl overflow-hidden">
+                        <div className="flex items-center text-xs font-bold text-slate-400 p-3 bg-slate-50/50 border-b border-slate-200/50">
                             <div className="w-8 text-center">#</div>
                             <div className="flex-1">User</div>
                             <div className="w-16 text-center">Level</div>
@@ -250,6 +217,13 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                         // We rely on the modal's internal state for confetti/success message flow.
                         // The actual data update happens here.
                     }}
+                />
+            )}
+            {isBreakdownModalOpen && (
+                <LevelBreakdownModal
+                    isOpen={isBreakdownModalOpen}
+                    currentLevel={profile.level}
+                    onClose={() => setIsBreakdownModalOpen(false)}
                 />
             )}
         </div>

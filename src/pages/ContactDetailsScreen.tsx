@@ -58,6 +58,21 @@ export default function ContactDetailsScreen({ contact, onBack, onChat, onSend, 
                 {contact.handle && <div className="text-teal-600 font-medium mb-1">@{contact.handle}</div>}
                 <div className="text-slate-400 text-xs font-mono bg-slate-50 px-3 py-1 rounded-full">{contact.address || `${contact.members?.length} Members`}</div>
 
+                {/* Pro Social Metrics */}
+                {contact.isPro && (contact.followers !== undefined || contact.following !== undefined) && (
+                    <div className="flex items-center gap-6 mt-4">
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-slate-900 leading-none">{contact.followers?.toLocaleString() ?? 0}</div>
+                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Followers</div>
+                        </div>
+                        <div className="w-px h-6 bg-slate-200"></div>
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-slate-900 leading-none">{contact.following?.toLocaleString() ?? 0}</div>
+                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Following</div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Bio or Group Description */}
                 {contact.bio && (
                     <div className="mt-6 text-center max-w-xs">
