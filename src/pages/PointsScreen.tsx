@@ -1,14 +1,18 @@
-import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check } from 'lucide-react';
 import type { UserProfile } from '../App';
+import QuestModal, { type Quest } from '../components/QuestModal';
 
 interface PointsScreenProps {
     profile: UserProfile;
     onBack: () => void;
+    onQuestComplete: (questId: string, points: number) => void;
 }
 
-export default function PointsScreen({ profile, onBack }: PointsScreenProps) {
+export default function PointsScreen({ profile, onBack, onQuestComplete }: PointsScreenProps) {
     const nextLevelPoints = 15000;
     const progress = (profile.points / nextLevelPoints) * 100;
+    const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
 
     const earnActions = [
         { icon: <Repeat size={18} className="text-blue-500" />, title: 'Swap Assets', points: '+50 pts', limit: 'Max 5/day' },
@@ -17,6 +21,48 @@ export default function PointsScreen({ profile, onBack }: PointsScreenProps) {
         { icon: <Globe size={18} className="text-sky-500" />, title: 'Governance Vote', points: '+500 pts', limit: 'Per Session' },
         { icon: <Zap size={18} className="text-amber-500" />, title: 'Daily Spin', points: '+10-100 pts', limit: 'Daily' },
         { icon: <Share2 size={18} className="text-pink-500" />, title: 'Bridge Assets', points: '+200 pts', limit: 'Monthly' },
+    ];
+
+    const quests: Quest[] = [
+        {
+            id: 'quest_custody',
+            title: 'What is a Self-Custodial Wallet?',
+            description: 'Learn the fundamentals of self-custody and why holding your own keys matters.',
+            timeEstimate: '2-3 mins',
+            points: 200,
+            successMessage: 'You understand the fundamentals of self-custody. Your keys. Your control.',
+            questions: [
+                { id: 1, question: 'What does "self-custodial" mean?', options: ['A bank controls your funds', 'You control your private keys', 'A third-party exchange holds your assets'], correctAnswerIndex: 1 },
+                { id: 2, question: 'Why is controlling your private keys important?', options: ['It allows you to reset your password easily', 'It ensures only you can authorize transactions', 'It makes transactions reversible'], correctAnswerIndex: 1 },
+                { id: 3, question: 'If you lose access to your private keys in a self-custodial wallet, what happens?', options: ['The wallet provider can recover them for you', 'Your funds may be permanently inaccessible', 'The blockchain automatically restores access'], correctAnswerIndex: 1 }
+            ]
+        },
+        {
+            id: 'quest_fund',
+            title: 'What is Pera Fund?',
+            description: 'Discover how Pera Fund simplifies moving capital into Algorand from other networks.',
+            timeEstimate: '2-3 mins',
+            points: 200,
+            successMessage: 'Funding simplified. You’re ready to move value with confidence.',
+            questions: [
+                { id: 1, question: 'What is the primary purpose of Pera Fund?', options: ['To lend assets to other users', 'To move funds into Algorand from fiat or other networks', 'To lock tokens for governance'], correctAnswerIndex: 1 },
+                { id: 2, question: 'Does using Pera Fund require giving up custody of your wallet?', options: ['Yes, funds are controlled by a third party', 'No, you remain in control of your wallet', 'Only during business hours'], correctAnswerIndex: 1 },
+                { id: 3, question: 'Why is direct funding important?', options: ['It reduces friction when entering the ecosystem', 'It increases transaction times', 'It removes blockchain transparency'], correctAnswerIndex: 0 }
+            ]
+        },
+        {
+            id: 'quest_swap',
+            title: 'What is Pera Swap?',
+            description: 'Understand how Pera Swap enables seamless in-wallet asset exchanges with speed and security.',
+            timeEstimate: '2-3 mins',
+            points: 200,
+            successMessage: 'Swap smarter. Stay in control.',
+            questions: [
+                { id: 1, question: 'What does Pera Swap allow users to do?', options: ['Exchange assets directly within the wallet', 'Convert crypto into airline miles', 'Freeze tokens permanently'], correctAnswerIndex: 0 },
+                { id: 2, question: 'When using Pera Swap, who controls your assets?', options: ['A centralized exchange', 'You, through your wallet', 'A random validator'], correctAnswerIndex: 1 },
+                { id: 3, question: 'What is a key benefit of in-wallet swaps?', options: ['Faster and more seamless asset management', 'Mandatory identity verification for every swap', 'Delayed settlement windows'], correctAnswerIndex: 0 }
+            ]
+        }
     ];
 
     const achievements = [
@@ -86,6 +132,40 @@ export default function PointsScreen({ profile, onBack }: PointsScreenProps) {
                             <Shield size={10} />
                             Points are non-transferable and have no monetary value.
                         </div>
+                    </div>
+                </div>
+
+                {/* Learning Quests (New Section) */}
+                <div>
+                    <h3 className="font-bold text-slate-900 mb-3 ml-1 flex items-center gap-2">
+                        <BookOpen size={18} className="text-teal-600" />
+                        Learning Quests
+                    </h3>
+                    <div className="space-y-3">
+                        {quests.map(quest => {
+                            const isCompleted = profile.completedQuests?.includes(quest.id);
+                            return (
+                                <div
+                                    key={quest.id}
+                                    onClick={() => !isCompleted && setSelectedQuest(quest)}
+                                    className={`bg-white p-4 rounded-2xl border transition-all ${isCompleted ? 'border-teal-100 bg-teal-50/20' : 'border-slate-100 shadow-sm hover:shadow-md hover:border-teal-200 cursor-pointer'}`}
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className={`font-bold text-base ${isCompleted ? 'text-teal-800' : 'text-slate-900'}`}>{quest.title}</h4>
+                                        {isCompleted ? (
+                                            <div className="bg-teal-100 text-teal-600 p-1 rounded-full"><Check size={14} strokeWidth={3} /></div>
+                                        ) : (
+                                            <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full whitespace-nowrap">+{quest.points} PTS</span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-slate-500 leading-snug mb-3">{quest.description}</p>
+                                    <div className="flex items-center gap-3 text-xs font-medium text-slate-400">
+                                        <span className="flex items-center gap-1"><Zap size={12} /> {quest.timeEstimate}</span>
+                                        {isCompleted && <span className="text-teal-600 font-bold">Completed</span>}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -159,6 +239,19 @@ export default function PointsScreen({ profile, onBack }: PointsScreenProps) {
                     </div>
                 </div>
             </div>
+
+            {selectedQuest && (
+                <QuestModal
+                    isOpen={!!selectedQuest}
+                    quest={selectedQuest}
+                    onClose={() => setSelectedQuest(null)}
+                    onComplete={(points) => {
+                        onQuestComplete(selectedQuest.id, points);
+                        // We rely on the modal's internal state for confetti/success message flow.
+                        // The actual data update happens here.
+                    }}
+                />
+            )}
         </div>
     );
 }

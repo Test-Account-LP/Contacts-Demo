@@ -11,6 +11,9 @@ export interface UserProfile {
     privacy: 'public' | 'friends' | 'private';
     level: number;
     points: number;
+    followers: number;
+    following: number;
+    completedQuests: string[];
 }
 
 interface ProfileContactsScreenProps {
@@ -138,6 +141,21 @@ export default function ProfileContactsScreen({
                     </div>
 
                     <h3 className="text-2xl font-bold">{profile.name || 'Unnamed'}</h3>
+
+                    {/* Pro Social Metrics */}
+                    {isPro && (
+                        <div className="flex items-center gap-6 mt-2 mb-1">
+                            <div className="text-center">
+                                <div className="text-lg font-bold text-white leading-none">{profile.followers?.toLocaleString() ?? 1240}</div>
+                                <div className="text-[10px] text-teal-200 font-bold uppercase tracking-wider">Followers</div>
+                            </div>
+                            <div className="w-px h-6 bg-white/20"></div>
+                            <div className="text-center">
+                                <div className="text-lg font-bold text-white leading-none">{profile.following?.toLocaleString() ?? 42}</div>
+                                <div className="text-[10px] text-teal-200 font-bold uppercase tracking-wider">Following</div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Extended Logic for .algo domain */}
                     <div className="mt-1 flex flex-col items-center gap-1">

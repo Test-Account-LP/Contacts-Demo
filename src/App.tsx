@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import confetti from 'canvas-confetti';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import MenuScreen from './pages/MenuScreen';
@@ -42,6 +43,9 @@ export interface UserProfile {
   privacy: 'public' | 'friends' | 'private';
   level: number;
   points: number;
+  followers: number;
+  following: number;
+  completedQuests: string[];
 }
 
 export type Theme = 'default' | 'retro' | 'space' | 'bmx' | 'train' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
@@ -57,7 +61,10 @@ function App() {
     handle: '',
     privacy: 'public',
     level: 26,
-    points: 85420
+    points: 85420,
+    followers: 1240,
+    following: 42,
+    completedQuests: []
   });
 
   const [contacts, setContacts] = useState<Contact[]>([
@@ -179,6 +186,23 @@ function App() {
     }));
   };
 
+  const handleQuestComplete = (questId: string, points: number) => {
+    if (profile.completedQuests.includes(questId)) return;
+
+    setProfile(prev => ({
+      ...prev,
+      points: prev.points + points,
+      completedQuests: [...prev.completedQuests, questId]
+    }));
+
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#2dd4bf', '#fbbf24', '#f472b6'] // Teal, Gold, Pink
+    });
+  };
+
   return (
     <Layout
       onHomeClick={() => navigateTo('home')}
@@ -247,6 +271,7 @@ function App() {
         <PointsScreen
           profile={profile}
           onBack={() => navigateTo('profile-contacts')}
+          onQuestComplete={handleQuestComplete}
         />
       )}
 
