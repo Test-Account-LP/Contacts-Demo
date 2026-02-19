@@ -1,14 +1,16 @@
 import { ScanLine, Settings, CreditCard, Layers, ArrowRightLeft, Download, Upload, Users, User, Plus, QrCode, Palette, Lock, BookOpen } from 'lucide-react';
+import { useTheme } from '../theme/ThemeContext';
 
 interface MenuScreenProps {
     onProfileClick: () => void;
     isPro: boolean;
     onTryPro: (feature: string) => void;
     onThemesClick: () => void;
-    onPeraQuestsClick: () => void;
+    onPeraRewardsClick: () => void;
 }
 
-export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick, onPeraQuestsClick }: MenuScreenProps) {
+export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick, onPeraRewardsClick }: MenuScreenProps) {
+    const { tokens } = useTheme();
     console.log('Rendering MenuScreen - Updated'); // Debugging update
     const menuItems = [
         { icon: <Layers size={22} />, label: 'NFTs', onClick: () => console.log('NFTs') },
@@ -19,27 +21,33 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
     ];
 
     return (
-        <div className="pb-24 pt-10 px-4 bg-white min-h-screen">
+        <div className="pb-24 pt-10 px-4 min-h-screen" style={{ backgroundColor: tokens.primaryBackground, color: tokens.primaryText }}>
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div className="w-6"></div> {/* Spacer for centering */}
                 <h2 className="text-lg font-bold">Menu</h2>
-                <div className="flex gap-4 text-slate-900">
+                <div className="flex gap-4" style={{ color: tokens.primaryText }}>
                     <ScanLine size={24} />
                     <Settings size={24} />
                 </div>
             </div>
 
             {/* Cards Section */}
-            <div className="metallic-card p-5 rounded-2xl mb-4 relative overflow-hidden">
+            <div
+                className="p-5 rounded-2xl mb-4 relative overflow-hidden"
+                style={{ backgroundColor: tokens.surface, color: tokens.primaryText, boxShadow: `0 4px 6px ${tokens.overlayDark}` }}
+            >
                 <div className="flex items-center gap-2 font-bold mb-2">
                     <CreditCard size={20} />
                     Cards
                 </div>
-                <p className="text-sm text-slate-500 mb-6 max-w-[60%]">
+                <p className="text-sm mb-6 max-w-[60%]" style={{ color: tokens.secondaryText }}>
                     Get the world's first web3 Mastercard.
                 </p>
-                <button className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                <button
+                    className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+                    style={{ backgroundColor: tokens.buttonPrimaryBackground, color: tokens.buttonPrimaryText }}
+                >
                     <Plus size={20} /> Create Pera Card
                 </button>
 
@@ -56,58 +64,76 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
             <div className="grid grid-cols-2 gap-3 mb-6">
                 <div
                     onClick={onProfileClick}
-                    className="metallic-card p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32"
+                    className="p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32"
+                    style={{ backgroundColor: tokens.surface, color: tokens.primaryText, boxShadow: `0 4px 6px ${tokens.overlayDark}` }}
                 >
-                    <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                        <User className="text-slate-900" size={20} />
+                    <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center bg-cover bg-center"
+                        style={{ background: tokens.metallicGradient || tokens.elevatedSurface, color: tokens.metallicGradient ? tokens.primaryBackground : tokens.primaryText }}
+                    >
+                        <User size={20} />
                     </div>
-                    <span className="font-bold text-slate-900">Profile & Contacts</span>
+                    <span className="font-bold">Profile & Contacts</span>
                 </div>
 
-                {/* Pera Quests - New Item */}
+                {/* Pera Rewards - Replaced Pera Quests */}
                 <div
-                    onClick={onPeraQuestsClick}
-                    className="bg-gradient-to-br from-sky-50 to-white p-4 rounded-3xl shadow-lg shadow-sky-100 border border-sky-100 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden"
+                    onClick={onPeraRewardsClick}
+                    className="p-4 rounded-3xl shadow-lg active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden"
+                    style={{ backgroundColor: tokens.surface, color: tokens.primaryText, border: `1px solid ${tokens.borderColor}`, boxShadow: `0 4px 12px ${tokens.overlayDark}` }}
                 >
                     {/* Decorative Elements */}
                     <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
-                        <BookOpen size={64} className="text-sky-900" />
+                        <BookOpen size={64} style={{ color: tokens.primaryAccent }} />
                     </div>
                     <div className="absolute bottom-10 right-2 opacity-20">
-                        <div className="w-8 h-8 rounded-full border-2 border-sky-900"></div>
+                        <div className="w-8 h-8 rounded-full border-2" style={{ borderColor: tokens.primaryAccent }}></div>
                     </div>
 
-                    <div className="w-10 h-10 bg-white/60 backdrop-blur-sm rounded-full flex items-center justify-center text-sky-700 shadow-sm">
+                    <div
+                        className="w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
+                        style={{ backgroundColor: tokens.elevatedSurface, color: tokens.primaryAccent }}
+                    >
                         <BookOpen size={20} />
                     </div>
                     <div>
-                        <span className="font-bold text-sky-900 block leading-tight">Pera Quests</span>
-                        <span className="text-[10px] uppercase font-bold text-sky-600 tracking-wider">Earn Rewards</span>
+                        <span className="font-bold block leading-tight">Pera Rewards</span>
+                        <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: tokens.secondaryText }}>Earn Rewards</span>
                     </div>
                 </div>
 
-                <div className="bg-slate-900 p-4 rounded-3xl shadow-sm shadow-slate-200 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden">
+                <div
+                    className="p-4 rounded-3xl shadow-sm active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden"
+                    style={{ backgroundColor: tokens.buttonPrimaryBackground, color: tokens.buttonPrimaryText, boxShadow: `0 4px 12px ${tokens.overlayDark}` }}
+                >
                     <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <QrCode size={64} className="text-white" />
+                        <QrCode size={64} />
                     </div>
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <QrCode className="text-white" size={20} />
+                    <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: tokens.overlayLight }}
+                    >
+                        <QrCode size={20} />
                     </div>
-                    <span className="font-bold text-white">Scan QR</span>
+                    <span className="font-bold">Scan QR</span>
                 </div>
 
                 {/* Themes - Pro Locked */}
                 <div
                     onClick={() => isPro ? onThemesClick() : onTryPro('Custom Themes')}
-                    className={`bg-gradient-to-br from-purple-500 to-indigo-600 p-4 rounded-3xl shadow-sm border-0 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden ${!isPro ? 'opacity-90' : ''}`}
+                    className={`p-4 rounded-3xl border-0 active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden ${!isPro ? 'opacity-90' : ''}`}
+                    style={{ background: tokens.metallicGradient || tokens.secondaryAccent, color: tokens.primaryBackground, boxShadow: `0 4px 12px ${tokens.overlayDark}` }}
                 >
-                    {!isPro && <div className="absolute top-3 right-3 bg-black/30 backdrop-blur-md p-1.5 rounded-full"><Lock size={12} className="text-white" /></div>}
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <Palette className="text-white" size={20} />
+                    {!isPro && <div className="absolute top-3 right-3 p-1.5 rounded-full" style={{ backgroundColor: tokens.overlayDark }}><Lock size={12} color="#fff" /></div>}
+                    <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: tokens.overlayDark, color: '#fff' }}
+                    >
+                        <Palette size={20} />
                     </div>
                     <div>
-                        <span className="font-bold text-white block">Themes</span>
-                        {!isPro && <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Pro Only</span>}
+                        <span className="font-bold block">Themes</span>
+                        {!isPro && <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: tokens.overlayDark }}>Pro Only</span>}
                     </div>
                 </div>
 
@@ -116,15 +142,22 @@ export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesCl
                     <div
                         key={index}
                         onClick={item.onClick}
-                        className="metallic-card p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden group"
+                        className="p-4 rounded-3xl active:scale-95 transition-transform flex flex-col justify-between h-32 relative overflow-hidden group"
+                        style={{ backgroundColor: tokens.surface, color: tokens.primaryText, boxShadow: `0 4px 6px ${tokens.overlayDark}` }}
                     >
                         {item.badge && (
-                            <div className="absolute top-3 right-3 px-1.5 py-0.5 bg-teal-400 text-teal-900 text-[10px] font-bold uppercase rounded">{item.badge}</div>
+                            <div
+                                className="absolute top-3 right-3 px-1.5 py-0.5 text-[10px] font-bold uppercase rounded"
+                                style={{ backgroundColor: tokens.success, color: '#fff' }}
+                            >{item.badge}</div>
                         )}
-                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-900 group-hover:scale-110 transition-transform">
+                        <div
+                            className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform bg-cover bg-center"
+                            style={{ background: tokens.metallicGradient || tokens.elevatedSurface, color: tokens.metallicGradient ? tokens.primaryBackground : tokens.primaryText }}
+                        >
                             {item.icon}
                         </div>
-                        <span className="font-bold text-slate-900 leading-tight">{item.label}</span>
+                        <span className="font-bold leading-tight">{item.label}</span>
                     </div>
                 ))}
             </div>

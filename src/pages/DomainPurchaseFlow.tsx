@@ -14,7 +14,7 @@ export default function DomainPurchaseFlow({ onBack, onSuccess }: DomainPurchase
     // Step 1: Intro Screen
     if (step === 1) {
         return (
-            <div className="pb-20 min-h-screen bg-white p-6 flex flex-col pt-12 relative animate-in fade-in duration-300">
+            <div className="min-h-screen bg-white p-6 flex flex-col pt-12 relative animate-in fade-in duration-300">
                 <button onClick={onBack} className="absolute top-4 left-4 text-slate-900"><X size={24} /></button>
 
                 <div className="flex-1 flex flex-col justify-center items-center text-center mt-10">
@@ -37,7 +37,7 @@ export default function DomainPurchaseFlow({ onBack, onSuccess }: DomainPurchase
 
                 <button
                     onClick={() => setStep(2)}
-                    className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold mt-8 hover:bg-slate-800 transition-colors"
+                    className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold mt-8 mb-6 hover:bg-slate-800 transition-colors"
                 >
                     Next
                 </button>
@@ -51,7 +51,7 @@ export default function DomainPurchaseFlow({ onBack, onSuccess }: DomainPurchase
         const isAvailable = cleanSearchTerm.length > 3 && !cleanSearchTerm.includes('taken');
 
         return (
-            <div className="pb-20 min-h-screen bg-white p-4 pt-12 animate-in slide-in-from-right duration-300">
+            <div className="pb-32 min-h-screen bg-white p-4 pt-12 animate-in slide-in-from-right duration-300">
                 <div className="flex items-center gap-4 mb-6">
                     <button onClick={() => setStep(1)}><ChevronLeft size={24} /></button>
                     <h2 className="text-2xl font-bold">Find a '.algo' name</h2>

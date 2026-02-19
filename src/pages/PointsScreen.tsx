@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check, Info } from 'lucide-react';
 import type { UserProfile } from '../App';
 import QuestModal from '../components/QuestModal';
 import LevelBreakdownModal from '../components/LevelBreakdownModal';
@@ -9,9 +9,10 @@ interface PointsScreenProps {
     profile: UserProfile;
     onBack: () => void;
     onQuestComplete: (questId: string, points: number) => void;
+    onUserClick?: (contactId: string) => void;
 }
 
-export default function PointsScreen({ profile, onBack, onQuestComplete }: PointsScreenProps) {
+export default function PointsScreen({ profile, onBack, onQuestComplete, onUserClick }: PointsScreenProps) {
     const POINTS_PER_LEVEL = 15000;
     const currentLevelPoints = profile.points % POINTS_PER_LEVEL;
     const progress = (currentLevelPoints / POINTS_PER_LEVEL) * 100;
@@ -33,14 +34,14 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
         { id: 3, title: 'Whale', desc: 'Hold 10k ALGO', icon: '🐋', unlocked: false, progress: '2.4k/10k' },
         { id: 4, title: 'Diamond Hands', desc: 'Stake for 3mo', icon: '💎', unlocked: false, progress: '1/3 mo' },
         { id: 5, title: 'Networker', desc: '10 Friends', icon: '🤝', unlocked: true, progress: '12/10' },
-        { id: 6, title: 'Power User', desc: 'Level 10', icon: '⚡', unlocked: false, progress: 'Lvl 7' },
+        { id: 6, title: 'Level', desc: 'Reach Platinum', icon: '⚡', unlocked: false, progress: `${profile.level}/50` },
     ];
 
     const leaderboard = [
-        { rank: 1, name: 'CryptoKing', points: 45200, level: 12 },
-        { rank: 2, name: 'Alice.algo', points: 38900, level: 11 },
-        { rank: 3, name: 'Satoshi_Fan', points: 32150, level: 10 },
-        { rank: 99, name: 'You', points: profile.points, level: profile.level },
+        { id: '100', rank: 1, name: 'CryptoKing', points: 1452000, level: 100 },
+        { id: '1', rank: 2, name: 'Alice.algo', points: 889000, level: 65 },
+        { id: '101', rank: 3, name: 'Satoshi_Fan', points: 732150, level: 60 },
+        { id: 'me', rank: 99, name: 'You', points: profile.points, level: profile.level },
     ];
 
     return (
@@ -69,9 +70,10 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                             </div>
                             <button
                                 onClick={() => setIsBreakdownModalOpen(true)}
-                                className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95"
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95 flex items-center gap-1"
                             >
                                 <Trophy size={32} className="text-amber-400" />
+                                <Info size={16} className="text-slate-400" />
                             </button>
                         </div>
 
@@ -168,7 +170,7 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                                 <div className="text-xs text-slate-500 mb-2">{ach.desc}</div>
 
                                 <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                    <div className={`h-full rounded-full ${ach.unlocked ? 'bg-teal-500' : 'bg-slate-300'}`} style={{ width: '60%' }}></div> {/* Mock progress visual */}
+                                    <div className={`h-full rounded-full ${ach.unlocked ? 'bg-teal-500' : 'bg-slate-300'}`} style={{ width: ach.id === 6 ? `${profile.level}%` : '60%' }}></div> {/* Mock progress visual */}
                                 </div>
                                 <div className="text-[10px] text-right text-slate-400 mt-1">{ach.progress}</div>
                             </div>
@@ -193,7 +195,11 @@ export default function PointsScreen({ profile, onBack, onQuestComplete }: Point
                             <div className="w-16 text-right">Points</div>
                         </div>
                         {leaderboard.map((user, i) => (
-                            <div key={i} className={`flex items-center p-3 text-sm ${user.rank === 99 ? 'bg-amber-50' : ''}`}>
+                            <div
+                                key={i}
+                                onClick={() => user.id !== 'me' && onUserClick && onUserClick(user.id)}
+                                className={`flex items-center p-3 text-sm transition-colors ${user.rank === 99 ? 'bg-amber-50' : 'cursor-pointer hover:bg-slate-100/50'}`}
+                            >
                                 <div className="w-8 text-center font-bold text-slate-500">{user.rank}</div>
                                 <div className="flex-1 font-bold text-slate-900">{user.name} {user.rank === 99 && '(You)'}</div>
                                 <div className="w-16 text-center text-slate-500 font-mono text-xs font-bold bg-slate-100 rounded-full py-0.5">Lvl {user.level}</div>

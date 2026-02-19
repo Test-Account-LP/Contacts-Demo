@@ -10,19 +10,19 @@ export default function LevelBreakdownModal({ isOpen, onClose, currentLevel }: L
     if (!isOpen) return null;
 
     const tiers = [
-        { name: 'Bronze', levels: '1-4', icon: <Shield size={24} className="text-amber-700" />, color: 'bg-gradient-to-br from-orange-200 to-amber-700' },
-        { name: 'Silver', levels: '5-9', icon: <Award size={24} className="text-slate-400" />, color: 'bg-gradient-to-br from-slate-200 to-slate-400' },
-        { name: 'Gold', levels: '10-24', icon: <Trophy size={24} className="text-yellow-500" />, color: 'bg-gradient-to-br from-yellow-200 to-yellow-500' },
-        { name: 'Platinum', levels: '25-49', icon: <Component size={24} className="text-cyan-400" />, color: 'bg-gradient-to-br from-cyan-100 to-cyan-500' },
-        { name: 'Diamond', levels: '50+', icon: <Crown size={24} className="text-indigo-400" />, color: 'bg-gradient-to-br from-indigo-200 to-purple-500' },
+        { name: 'Bronze', levels: '5-9', icon: <Shield size={24} className="text-amber-700" />, color: 'bg-gradient-to-br from-orange-200 to-amber-700' },
+        { name: 'Silver', levels: '10-24', icon: <Award size={24} className="text-slate-400" />, color: 'bg-gradient-to-br from-slate-200 to-slate-400' },
+        { name: 'Gold', levels: '25-49', icon: <Trophy size={24} className="text-yellow-500" />, color: 'bg-gradient-to-br from-yellow-200 to-yellow-500' },
+        { name: 'Platinum', levels: '50-99', icon: <Component size={24} className="text-cyan-400" />, color: 'bg-gradient-to-br from-cyan-100 to-cyan-500' },
+        { name: 'Diamond', levels: '100+', icon: <Crown size={24} className="text-indigo-400" />, color: 'bg-gradient-to-br from-indigo-200 to-purple-500' },
     ];
 
     const getCurrentTier = (level: number) => {
-        if (level >= 50) return 'Diamond';
-        if (level >= 25) return 'Platinum';
-        if (level >= 10) return 'Gold';
-        if (level >= 5) return 'Silver';
-        return 'Bronze';
+        if (level >= 100) return 'Diamond';
+        if (level >= 50) return 'Platinum';
+        if (level >= 25) return 'Gold';
+        if (level >= 10) return 'Silver';
+        return 'Bronze'; // Defaults to bronze beneath 5 for UX reasons
     };
 
     const currentTierName = getCurrentTier(currentLevel);

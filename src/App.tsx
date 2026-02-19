@@ -12,8 +12,10 @@ import TransactionModal from './components/TransactionModal';
 import PointsScreen from './pages/PointsScreen';
 import ThemesScreen from './pages/ThemesScreen';
 import PeraQuestsDashboard from './pages/PeraQuestsDashboard';
+import DiscoverScreen from './pages/DiscoverScreen';
+import { ThemeProvider } from './theme/ThemeContext';
 
-type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests';
+type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover';
 
 export interface Transaction {
   date: string;
@@ -57,7 +59,6 @@ export type Theme = 'default' | 'retro' | 'space' | 'bmx' | 'train' | 'bronze' |
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<Theme>('default');
 
   const [profile, setProfile] = useState<UserProfile>({
     name: 'DUA4...2ESM',
@@ -96,6 +97,38 @@ function App() {
       ]
     },
     {
+      id: '100',
+      name: 'CryptoKing',
+      type: 'user',
+      handle: 'cryptoking.algo',
+      address: 'KING...X99',
+      isPro: true,
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=CryptoKing',
+      bio: "Diamond hands. I bought Bitcoin in 2011 and Algo at Genesis. See you at the top.",
+      pnl: '+$14,500,000',
+      followers: 1200000,
+      following: 0,
+      history: [
+        { date: '2023-01-10', amount: '1,500,000', type: 'received', asset: 'ALGO' },
+      ]
+    },
+    {
+      id: '101',
+      name: 'Satoshi_Fan',
+      type: 'user',
+      handle: 'satoshi.algo',
+      address: 'SAT...OSHI',
+      isPro: true,
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Satoshi_Fan',
+      bio: "Building the decentralized future one block at a time. Tech lead @ Web3 Ventures.",
+      pnl: '+$8,200,000',
+      followers: 850000,
+      following: 42,
+      history: [
+        { date: '2022-05-12', amount: '25,000', type: 'received', asset: 'goBTC' },
+      ]
+    },
+    {
       id: '4',
       name: 'Weekend Trip',
       type: 'group',
@@ -131,6 +164,9 @@ function App() {
   const handleStartProTrial = () => {
     setIsPro(true);
     setShowProModal(false);
+    if (proFeatureName === 'Custom Themes') {
+      navigateTo('themes-screen');
+    }
     // In a real app, this would start a timer or backend process
   };
 
@@ -211,104 +247,108 @@ function App() {
   };
 
   return (
-    <Layout
-      onHomeClick={() => navigateTo('home')}
-      onMenuClick={() => navigateTo('menu')}
-      currentTheme={theme}
-    >
-      {currentScreen === 'home' && (
-        <Home onMoreClick={() => navigateTo('menu')} />
-      )}
-      {currentScreen === 'menu' && (
-        <MenuScreen
-          onProfileClick={() => navigateTo('profile-contacts')}
-          isPro={isPro}
-          onTryPro={(feature) => verifyProAccess(feature)}
-          onThemesClick={() => navigateTo('themes-screen')}
-          onPeraQuestsClick={() => navigateTo('pera-quests')}
-        />
-      )}
-      {currentScreen === 'profile-contacts' && (
-        <ProfileContactsScreen
-          onBack={() => navigateTo('menu')}
-          profile={profile}
-          contacts={contacts}
-          onUpdateProfile={handleUpdateProfile}
-          onAddContact={handleAddContact}
-          onPurchaseStart={() => navigateTo('purchase-flow')}
-          isPro={isPro}
-          onTryPro={(feature) => verifyProAccess(feature)}
-          onContactClick={handleContactClick}
-          onPointsClick={() => navigateTo('points-dashboard')}
-        />
-      )}
-      {currentScreen === 'themes-screen' && (
-        <ThemesScreen
-          currentTheme={theme}
-          onSelectTheme={setTheme}
-          onBack={() => navigateTo('menu')}
-          userLevel={profile.level}
-        />
-      )}
-      {currentScreen === 'purchase-flow' && (
-        <DomainPurchaseFlow
-          onBack={() => navigateTo('profile-contacts')}
-          onSuccess={handlePurchaseSuccess}
-        />
-      )}
-      {currentScreen === 'contact-details' && selectedContactId && (
-        <ContactDetailsScreen
-          contact={getSelectedContact()}
-          allContacts={contacts}
-          onBack={() => navigateTo('profile-contacts')}
-          onChat={() => navigateTo('chat')}
-          onSend={() => handleTxStart('send')}
-          onRequest={() => handleTxStart('request')}
-          onRemoveMember={(memberId) => handleRemoveMember(selectedContactId, memberId)}
-          onAddMember={(member) => handleAddMember(selectedContactId, member)}
-        />
-      )}
-      {currentScreen === 'chat' && selectedContactId && (
-        <ChatScreen
-          contact={getSelectedContact()}
-          onBack={() => navigateTo('contact-details')}
-        />
-      )}
+    <ThemeProvider>
+      <Layout
+        onHomeClick={() => navigateTo('home')}
+        onMenuClick={() => navigateTo('menu')}
+        onDiscoverClick={() => navigateTo('discover')}
+      >
+        {currentScreen === 'home' && (
+          <Home onMoreClick={() => navigateTo('menu')} />
+        )}
+        {currentScreen === 'discover' && (
+          <DiscoverScreen />
+        )}
+        {currentScreen === 'menu' && (
+          <MenuScreen
+            onProfileClick={() => navigateTo('profile-contacts')}
+            isPro={isPro}
+            onTryPro={(feature) => verifyProAccess(feature)}
+            onThemesClick={() => navigateTo('themes-screen')}
+            onPeraRewardsClick={() => navigateTo('points-dashboard')}
+          />
+        )}
+        {currentScreen === 'profile-contacts' && (
+          <ProfileContactsScreen
+            onBack={() => navigateTo('menu')}
+            profile={profile}
+            contacts={contacts}
+            onUpdateProfile={handleUpdateProfile}
+            onAddContact={handleAddContact}
+            onPurchaseStart={() => navigateTo('purchase-flow')}
+            isPro={isPro}
+            onTryPro={(feature) => verifyProAccess(feature)}
+            onContactClick={handleContactClick}
+            onPointsClick={() => navigateTo('points-dashboard')}
+          />
+        )}
+        {currentScreen === 'themes-screen' && (
+          <ThemesScreen
+            onBack={() => navigateTo('menu')}
+            userLevel={profile.level}
+          />
+        )}
+        {currentScreen === 'purchase-flow' && (
+          <DomainPurchaseFlow
+            onBack={() => navigateTo('profile-contacts')}
+            onSuccess={handlePurchaseSuccess}
+          />
+        )}
+        {currentScreen === 'contact-details' && selectedContactId && (
+          <ContactDetailsScreen
+            contact={getSelectedContact()}
+            allContacts={contacts}
+            onBack={() => navigateTo('profile-contacts')}
+            onChat={() => navigateTo('chat')}
+            onSend={() => handleTxStart('send')}
+            onRequest={() => handleTxStart('request')}
+            onRemoveMember={(memberId) => handleRemoveMember(selectedContactId, memberId)}
+            onAddMember={(member) => handleAddMember(selectedContactId, member)}
+          />
+        )}
+        {currentScreen === 'chat' && selectedContactId && (
+          <ChatScreen
+            contact={getSelectedContact()}
+            onBack={() => navigateTo('contact-details')}
+          />
+        )}
 
-      {currentScreen === 'points-dashboard' && (
-        <PointsScreen
-          profile={profile}
-          onBack={() => navigateTo('profile-contacts')}
-          onQuestComplete={handleQuestComplete}
-        />
-      )}
+        {currentScreen === 'points-dashboard' && (
+          <PointsScreen
+            profile={profile}
+            onBack={() => navigateTo('profile-contacts')}
+            onQuestComplete={handleQuestComplete}
+            onUserClick={handleContactClick}
+          />
+        )}
 
-      {currentScreen === 'pera-quests' && (
-        <PeraQuestsDashboard
-          profile={profile}
-          onBack={() => navigateTo('menu')}
-          onUpdateProfile={handleUpdateProfile}
-          onQuestComplete={handleQuestComplete}
-        />
-      )}
+        {currentScreen === 'pera-quests' && (
+          <PeraQuestsDashboard
+            profile={profile}
+            onBack={() => navigateTo('menu')}
+            onUpdateProfile={handleUpdateProfile}
+            onQuestComplete={handleQuestComplete}
+          />
+        )}
 
-      <ProEvaluationModal
-        isOpen={showProModal}
-        onClose={() => setShowProModal(false)}
-        onStartTrial={handleStartProTrial}
-        featureName={proFeatureName}
-      />
-
-      {selectedContactId && isTxModalOpen && (
-        <TransactionModal
-          isOpen={isTxModalOpen}
-          onClose={() => setIsTxModalOpen(false)}
-          type={txType}
-          recipient={getSelectedContact()}
-          onConfirm={handleTxConfirm}
+        <ProEvaluationModal
+          isOpen={showProModal}
+          onClose={() => setShowProModal(false)}
+          onStartTrial={handleStartProTrial}
+          featureName={proFeatureName}
         />
-      )}
-    </Layout>
+
+        {selectedContactId && isTxModalOpen && (
+          <TransactionModal
+            isOpen={isTxModalOpen}
+            onClose={() => setIsTxModalOpen(false)}
+            type={txType}
+            recipient={getSelectedContact()}
+            onConfirm={handleTxConfirm}
+          />
+        )}
+      </Layout>
+    </ThemeProvider>
   );
 }
 
