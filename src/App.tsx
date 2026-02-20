@@ -13,11 +13,12 @@ import PointsScreen from './pages/PointsScreen';
 import ThemesScreen from './pages/ThemesScreen';
 import PeraQuestsDashboard from './pages/PeraQuestsDashboard';
 import DiscoverScreen from './pages/DiscoverScreen';
+import BrickBreakerScreen from './pages/BrickBreakerScreen';
 import SpinWheelScreen from './pages/SpinWheelScreen';
 import CrosswordScreen from './pages/CrosswordScreen';
 import { ThemeProvider } from './theme/ThemeContext';
 
-type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover' | 'spin-wheel' | 'crossword';
+type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover' | 'spin-wheel' | 'crossword' | 'brick-breaker';
 
 export interface Transaction {
   date: string;
@@ -266,16 +267,22 @@ function App() {
               onBack={() => navigateTo('discover')}
               onPointsEarned={(pts) => setProfile(prev => ({ ...prev, points: prev.points + pts }))}
             />
+          ) : currentScreen === 'brick-breaker' ? (
+            <BrickBreakerScreen
+              onBack={() => navigateTo('discover')}
+              onPointsEarned={(pts) => setProfile(prev => ({ ...prev, points: prev.points + pts }))}
+            />
           ) : undefined
         }
       >
         {currentScreen === 'home' && (
           <Home onMoreClick={() => navigateTo('menu')} />
         )}
-        {(currentScreen === 'discover' || currentScreen === 'spin-wheel' || currentScreen === 'crossword') && (
+        {(currentScreen === 'discover' || currentScreen === 'spin-wheel' || currentScreen === 'crossword' || currentScreen === 'brick-breaker') && (
           <DiscoverScreen
             onSpinClick={() => navigateTo('spin-wheel')}
             onCrosswordClick={() => navigateTo('crossword')}
+            onBrickBreakerClick={() => navigateTo('brick-breaker')}
           />
         )}
         {currentScreen === 'menu' && (

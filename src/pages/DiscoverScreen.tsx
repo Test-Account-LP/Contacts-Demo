@@ -5,9 +5,10 @@ import { useTheme } from '../theme/ThemeContext';
 interface DiscoverScreenProps {
     onSpinClick?: () => void;
     onCrosswordClick?: () => void;
+    onBrickBreakerClick?: () => void;
 }
 
-export default function DiscoverScreen({ onSpinClick, onCrosswordClick }: DiscoverScreenProps) {
+export default function DiscoverScreen({ onSpinClick, onCrosswordClick, onBrickBreakerClick }: DiscoverScreenProps) {
     const { tokens } = useTheme();
     const [activeTab, setActiveTab] = useState<'discover' | 'favorites'>('discover');
 
@@ -133,6 +134,26 @@ export default function DiscoverScreen({ onSpinClick, onCrosswordClick }: Discov
                                 <div className="text-xs mt-0.5" style={{ color: tokens.secondaryText }}>5×5 daily puzzle</div>
                             </div>
                             <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#0ea5e9' }}>
+                                <ChevronRight size={18} color="white" />
+                            </div>
+                        </button>
+
+                        {/* Brick Breaker Tile */}
+                        <button
+                            onClick={onBrickBreakerClick}
+                            className="flex-shrink-0 flex items-center gap-3 p-4 rounded-2xl border-2 transition-all active:scale-[0.98]"
+                            style={{ borderColor: '#f59e0b', backgroundColor: tokens.surface, width: 270 }}
+                        >
+                            <div className="flex-shrink-0" style={{
+                                width: 52, height: 52, backgroundColor: '#1e293b', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                <div style={{ width: 30, height: 6, backgroundColor: '#7c3aed', borderRadius: 2 }} />
+                            </div>
+                            <div className="flex-1 text-left">
+                                <div className="font-bold text-sm" style={{ color: tokens.primaryText }}>Classic Brick Breaker</div>
+                                <div className="text-xs mt-0.5" style={{ color: tokens.secondaryText }}>10 levels • 3 lives</div>
+                            </div>
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#f59e0b' }}>
                                 <ChevronRight size={18} color="white" />
                             </div>
                         </button>
