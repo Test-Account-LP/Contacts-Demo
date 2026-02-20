@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Search, TrendingUp, ChevronRight, ArrowUpRight, Globe } from 'lucide-react';
+import { Search, TrendingUp, ChevronRight, ArrowUpRight, Globe, Sparkles } from 'lucide-react';
 import { useTheme } from '../theme/ThemeContext';
 
-export default function DiscoverScreen() {
+interface DiscoverScreenProps {
+    onSpinClick?: () => void;
+    onCrosswordClick?: () => void;
+}
+
+export default function DiscoverScreen({ onSpinClick, onCrosswordClick }: DiscoverScreenProps) {
     const { tokens } = useTheme();
     const [activeTab, setActiveTab] = useState<'discover' | 'favorites'>('discover');
 
@@ -67,19 +72,71 @@ export default function DiscoverScreen() {
                     <span className="text-sm">Search or Type URL</span>
                 </div>
 
-                {/* Promo Banner */}
-                <div
-                    className="flex items-center gap-3 p-4 rounded-2xl relative overflow-hidden"
-                    style={{ backgroundColor: tokens.surface, border: `1px solid ${tokens.borderColor}` }}
-                >
-                    <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-xl flex-shrink-0">🎮</div>
-                    <p className="text-sm font-medium flex-1" style={{ color: tokens.secondaryText }}>A description here with for the game</p>
-                    <button
-                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: tokens.primaryAccent, color: '#fff' }}
-                    >
-                        <ChevronRight size={16} />
-                    </button>
+                {/* Fun Zone */}
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <button className="flex items-center gap-2 font-bold text-lg" style={{ color: tokens.primaryText }}>
+                            <Sparkles size={18} className="text-violet-500" />
+                            Fun Zone
+                            <ChevronRight size={16} style={{ color: tokens.mutedText }} />
+                        </button>
+                        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border" style={{ borderColor: tokens.borderColor, color: tokens.secondaryText }}>
+                            <div className="w-4 h-4 rounded bg-teal-400" />
+                            Main Account ▾
+                        </div>
+                    </div>
+
+                    {/* Horizontal scroll of game tiles */}
+                    <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+                        {/* Lucky Wheel Tile */}
+                        <button
+                            onClick={onSpinClick}
+                            className="flex-shrink-0 flex items-center gap-3 p-4 rounded-2xl border-2 transition-all active:scale-[0.98]"
+                            style={{ borderColor: '#7c3aed', backgroundColor: tokens.surface, width: 270 }}
+                        >
+                            {/* Wheel icon — dark outer rim, colored segments */}
+                            <div className="flex-shrink-0" style={{
+                                width: 52, height: 52, borderRadius: '50%',
+                                background: 'conic-gradient(#475569 0deg 45deg, #94a3b8 45deg 90deg, #6d28d9 90deg 135deg, #475569 135deg 180deg, #0ea5e9 180deg 225deg, #94a3b8 225deg 270deg, #334155 270deg 315deg, #64748b 315deg 360deg)',
+                                border: '3px solid #1e293b', boxShadow: 'inset 0 0 0 12px rgba(0,0,0,0.15)',
+                                position: 'relative', overflow: 'hidden'
+                            }}>
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#1e293b', border: '2px solid #6d28d9' }} />
+                                </div>
+                            </div>
+                            <div className="flex-1 text-left">
+                                <div className="font-bold text-sm" style={{ color: tokens.primaryText }}>Pera Lucky Wheel</div>
+                                <div className="text-xs mt-0.5" style={{ color: tokens.secondaryText }}>Test your luck to win prizes!</div>
+                            </div>
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#7c3aed' }}>
+                                <ChevronRight size={18} color="white" />
+                            </div>
+                        </button>
+
+                        {/* Mini Crossword Tile */}
+                        <button
+                            onClick={onCrosswordClick}
+                            className="flex-shrink-0 flex items-center gap-3 p-4 rounded-2xl border-2 transition-all active:scale-[0.98]"
+                            style={{ borderColor: '#0ea5e9', backgroundColor: tokens.surface, width: 270 }}
+                        >
+                            {/* Crossword grid preview */}
+                            <div className="flex-shrink-0" style={{ width: 52, height: 52 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 2, width: 52, height: 52 }}>
+                                    {[0, 0, 0, 0, 1, 0, 0, 0, 0].map((b, i) => (
+                                        <div key={i} style={{ backgroundColor: b ? '#1e293b' : '#ddd6fe', borderRadius: 2 }} />
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex-1 text-left">
+                                <div className="font-bold text-sm" style={{ color: tokens.primaryText }}>Daily Mini Crossword</div>
+                                <div className="text-xs mt-0.5" style={{ color: tokens.secondaryText }}>5×5 daily puzzle</div>
+                            </div>
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#0ea5e9' }}>
+                                <ChevronRight size={18} color="white" />
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Algo Price */}

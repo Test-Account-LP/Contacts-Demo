@@ -13,9 +13,11 @@ import PointsScreen from './pages/PointsScreen';
 import ThemesScreen from './pages/ThemesScreen';
 import PeraQuestsDashboard from './pages/PeraQuestsDashboard';
 import DiscoverScreen from './pages/DiscoverScreen';
+import SpinWheelScreen from './pages/SpinWheelScreen';
+import CrosswordScreen from './pages/CrosswordScreen';
 import { ThemeProvider } from './theme/ThemeContext';
 
-type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover';
+type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover' | 'spin-wheel' | 'crossword';
 
 export interface Transaction {
   date: string;
@@ -252,12 +254,29 @@ function App() {
         onHomeClick={() => navigateTo('home')}
         onMenuClick={() => navigateTo('menu')}
         onDiscoverClick={() => navigateTo('discover')}
+        overlay={
+          currentScreen === 'spin-wheel' ? (
+            <SpinWheelScreen
+              onBack={() => navigateTo('discover')}
+              onPointsEarned={(pts) => setProfile(prev => ({ ...prev, points: prev.points + pts }))}
+              currentPoints={profile.points}
+            />
+          ) : currentScreen === 'crossword' ? (
+            <CrosswordScreen
+              onBack={() => navigateTo('discover')}
+              onPointsEarned={(pts) => setProfile(prev => ({ ...prev, points: prev.points + pts }))}
+            />
+          ) : undefined
+        }
       >
         {currentScreen === 'home' && (
           <Home onMoreClick={() => navigateTo('menu')} />
         )}
-        {currentScreen === 'discover' && (
-          <DiscoverScreen />
+        {(currentScreen === 'discover' || currentScreen === 'spin-wheel' || currentScreen === 'crossword') && (
+          <DiscoverScreen
+            onSpinClick={() => navigateTo('spin-wheel')}
+            onCrosswordClick={() => navigateTo('crossword')}
+          />
         )}
         {currentScreen === 'menu' && (
           <MenuScreen

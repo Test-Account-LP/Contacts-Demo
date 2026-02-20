@@ -8,9 +8,10 @@ interface LayoutProps {
     onHomeClick: () => void;
     onMenuClick: () => void;
     onDiscoverClick: () => void;
+    overlay?: ReactNode;
 }
 
-export default function Layout({ children, onHomeClick, onMenuClick, onDiscoverClick }: LayoutProps) {
+export default function Layout({ children, onHomeClick, onMenuClick, onDiscoverClick, overlay }: LayoutProps) {
     const { tokens } = useTheme();
 
     return (
@@ -24,11 +25,14 @@ export default function Layout({ children, onHomeClick, onMenuClick, onDiscoverC
                     {children}
                 </main>
                 <div
-                    className="absolute bottom-0 w-full z-50 border-t"
+                    className="absolute bottom-0 w-full z-40 border-t"
                     style={{ backgroundColor: tokens.footerBackground, borderColor: tokens.dividerColor }}
                 >
                     <BottomNav onHomeClick={onHomeClick} onMenuClick={onMenuClick} onDiscoverClick={onDiscoverClick} />
                 </div>
+                {overlay && (
+                    <div className="absolute inset-0 z-50">{overlay}</div>
+                )}
             </div>
         </div>
     );
