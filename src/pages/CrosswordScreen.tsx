@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Clock, Trophy } from 'lucide-react';
+import { X, Clock, Trophy, MoreHorizontal } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getTodaysPuzzle, loadResult, saveResult, formatTime, FRIEND_TIMES, type CrosswordResult } from '../utils/crosswordData';
 
@@ -15,51 +15,109 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
     const existingResult = loadResult(puzzle.date);
 
     // Grid state: user's typed letters
-    const [grid, setGrid] = useState<(string | null)[][]>(() =>
-        puzzle.solution.map(row => row.map(c => (c === null ? null : '')))
-    );
+    const [grid, setGrid] = useState<(string | null)[][]>(() => {
+        if (existingResult?.completed) {
+            return puzzle.solution.map(row => row.map(ans => ans === null ? null : ans));
+        }
+        return existingResult?.gridState || puzzle.solution.map(row => row.map(c => (c === null ? null : '')));
+    });
     const [selected, setSelected] = useState<{ r: number; c: number } | null>(null);
     const [dir, setDir] = useState<Dir>('across');
     const [errors, setErrors] = useState<boolean[][]>(() => puzzle.solution.map(row => row.map(() => false)));
     const [tab, setTab] = useState<Tab>('puzzle');
     const [completed, setCompleted] = useState(existingResult?.completed ?? false);
     const [solveMs, setSolveMs] = useState(existingResult?.solveMs ?? 0);
-    const [elapsedMs, setElapsedMs] = useState(0);
-    const startRef = useRef<number | null>(existingResult?.startedAt ?? null);
+    const [elapsedMs, setElapsedMs] = useState(existingResult?.elapsedSaved ?? 0);
+    const [hintsUsed, setHintsUsed] = useState(existingResult?.hintsUsed ?? 0);
+    const [showMenu, setShowMenu] = useState(false);
+    const leaderboardClicksRef = useRef(0);
+    const startRef = useRef<number | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const isPlaying = startRef.current !== null || completed;
+
+    const savePartialState = useCallback((newGrid: (string | null)[][], currentElapsed: number, currentHints: number = hintsUsed) => {
+        if (!completed) {
+            saveResult({
+                date: puzzle.date,
+                solveMs: 0,
+                completed: false,
+                startedAt: 0,
+                gridState: newGrid,
+                elapsedSaved: currentElapsed,
+                hintsUsed: currentHints,
+            });
+        }
+    }, [puzzle.date, completed, hintsUsed]);
 
     // Timer
     useEffect(() => {
-        if (completed) return;
+        if (completed || !startRef.current) return;
         timerRef.current = setInterval(() => {
             if (startRef.current) setElapsedMs(Date.now() - startRef.current);
         }, 500);
         return () => { if (timerRef.current) clearInterval(timerRef.current); };
-    }, [completed]);
+    }, [completed, isPlaying]);
 
     const startTimer = () => {
-        if (!startRef.current) { startRef.current = Date.now(); }
+        if (!startRef.current) {
+            startRef.current = Date.now() - elapsedMs;
+            setElapsedMs(elapsedMs + 1); // Force immediate render for isPlaying
+        }
     };
 
     const checkCompletion = useCallback((g: (string | null)[][]) => {
-        const errs: boolean[][] = puzzle.solution.map((row, r) =>
-            row.map((ans, c) => ans !== null && g[r][c] !== null && g[r][c] !== '' && g[r][c]!.toUpperCase() !== ans)
-        );
-        setErrors(errs);
-        const allFilled = puzzle.solution.every((row, r) =>
+        const allFilledAndCorrect = puzzle.solution.every((row, r) =>
             row.every((ans, c) => ans === null || (g[r][c] && g[r][c]!.toUpperCase() === ans))
         );
-        if (allFilled) {
+        if (allFilledAndCorrect) {
             const elapsed = startRef.current ? Date.now() - startRef.current : 0;
             if (timerRef.current) clearInterval(timerRef.current);
             setSolveMs(elapsed);
             setCompleted(true);
-            const result: CrosswordResult = { date: puzzle.date, solveMs: elapsed, completed: true, startedAt: startRef.current ?? Date.now() };
+            const result: CrosswordResult = { date: puzzle.date, solveMs: elapsed, completed: true, startedAt: startRef.current ?? Date.now(), hintsUsed };
             saveResult(result);
             onPointsEarned(50);
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.4 }, colors: ['#7c3aed', '#fbbf24', '#06b6d4'] });
         }
-    }, [puzzle, onPointsEarned]);
+    }, [puzzle, onPointsEarned, hintsUsed]);
+
+    const handleCheckPuzzle = () => {
+        const errs: boolean[][] = puzzle.solution.map((row, r) =>
+            row.map((ans, c) => {
+                const val = grid[r][c];
+                return ans !== null && val !== null && val !== '' && val.toUpperCase() !== ans;
+            })
+        );
+        setErrors(errs);
+        setShowMenu(false);
+    };
+
+    const handleRevealLetter = () => {
+        if (!selected) return;
+        const { r, c } = selected;
+        const ans = puzzle.solution[r][c];
+        if (!ans) return;
+        const newG = grid.map(row => [...row]);
+        newG[r][c] = ans;
+        setGrid(newG);
+        setHintsUsed(h => h + 1);
+        savePartialState(newG, startRef.current ? Date.now() - startRef.current : elapsedMs, hintsUsed + 1);
+        checkCompletion(newG);
+        setShowMenu(false);
+    };
+
+    const handleGiveUp = () => {
+        const solved = puzzle.solution.map(row => row.map(ans => ans === null ? null : ans));
+        setGrid(solved);
+        setErrors(solved.map(r => r.map(() => false)));
+        if (timerRef.current) clearInterval(timerRef.current);
+        const elapsed = startRef.current ? Date.now() - startRef.current : elapsedMs;
+        setSolveMs(elapsed);
+        setCompleted(true);
+        saveResult({ date: puzzle.date, solveMs: elapsed, completed: true, startedAt: startRef.current ?? Date.now(), hintsUsed: hintsUsed + 1 });
+        setShowMenu(false);
+    };
 
     const handleCellClick = (r: number, c: number) => {
         if (puzzle.solution[r][c] === BLACK) return;
@@ -78,12 +136,34 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
 
         if (letter === 'BACK') {
             const newG = grid.map(row => [...row]);
-            if (newG[r][c]) { newG[r][c] = ''; setGrid(newG); return; }
+            if (newG[r][c]) {
+                newG[r][c] = '';
+                setGrid(newG);
+                if (errors[r][c]) {
+                    const newE = errors.map(er => [...er]);
+                    newE[r][c] = false;
+                    setErrors(newE);
+                }
+                savePartialState(newG, startRef.current ? Date.now() - startRef.current : elapsedMs);
+                return;
+            }
             // move back
             if (dir === 'across' && c > 0 && puzzle.solution[r][c - 1] !== null) {
                 setSelected({ r, c: c - 1 }); newG[r][c - 1] = ''; setGrid(newG);
+                if (errors[r][c - 1]) {
+                    const newE = errors.map(er => [...er]);
+                    newE[r][c - 1] = false;
+                    setErrors(newE);
+                }
+                savePartialState(newG, startRef.current ? Date.now() - startRef.current : elapsedMs);
             } else if (dir === 'down' && r > 0 && puzzle.solution[r - 1][c] !== null) {
                 setSelected({ r: r - 1, c }); newG[r - 1][c] = ''; setGrid(newG);
+                if (errors[r - 1][c]) {
+                    const newE = errors.map(er => [...er]);
+                    newE[r - 1][c] = false;
+                    setErrors(newE);
+                }
+                savePartialState(newG, startRef.current ? Date.now() - startRef.current : elapsedMs);
             }
             return;
         }
@@ -91,9 +171,18 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
         const newG = grid.map(row => [...row]);
         newG[r][c] = letter.toUpperCase();
         setGrid(newG);
+
+        if (errors[r][c]) {
+            const newE = errors.map(er => [...er]);
+            newE[r][c] = false;
+            setErrors(newE);
+        }
+
+        savePartialState(newG, startRef.current ? Date.now() - startRef.current : elapsedMs);
+
         checkCompletion(newG);
         advanceCursor(r, c, dir, newG);
-    }, [selected, dir, grid, puzzle, completed, checkCompletion]);
+    }, [selected, dir, grid, puzzle, completed, errors, checkCompletion, savePartialState, elapsedMs]);
 
     // Physical keyboard
     useEffect(() => {
@@ -195,10 +284,41 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
 
     const displayTime = completed ? formatTime(solveMs) : formatTime(elapsedMs);
 
+    const handleClose = () => {
+        if (!completed && startRef.current !== null) {
+            const currentElapsed = Date.now() - startRef.current;
+            savePartialState(grid, currentElapsed, hintsUsed);
+        }
+        onBack();
+    };
+
+    const handleLeaderboardClick = () => {
+        setTab('leaderboard');
+        leaderboardClicksRef.current += 1;
+        if (leaderboardClicksRef.current >= 10) {
+            // Secret logic: Restart puzzle
+            try {
+                const map = JSON.parse(localStorage.getItem('pera_crossword_results') || '{}');
+                delete map[puzzle.date];
+                localStorage.setItem('pera_crossword_results', JSON.stringify(map));
+            } catch { }
+
+            setCompleted(false);
+            setGrid(puzzle.solution.map(row => row.map(ans => ans === null ? null : '')));
+            setSolveMs(0);
+            setElapsedMs(0);
+            setHintsUsed(0);
+            setErrors(puzzle.solution.map(row => row.map(() => false)));
+            startRef.current = null;
+            if (timerRef.current) clearInterval(timerRef.current);
+            leaderboardClicksRef.current = 0;
+        }
+    };
+
     return (
         <div className="h-full w-full flex flex-col justify-end" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
             {/* Close button */}
-            <button onClick={onBack} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center z-10">
+            <button onClick={handleClose} className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center z-10">
                 <X size={20} className="text-slate-800" />
             </button>
 
@@ -207,103 +327,139 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
                 {/* Tabs */}
                 <div className="flex px-5 pt-5 pb-2 gap-4 border-b border-slate-100">
                     <button onClick={() => setTab('puzzle')} className={`font-bold text-base ${tab === 'puzzle' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400'}`}>Puzzle</button>
-                    <button onClick={() => setTab('leaderboard')} className={`font-bold text-base flex items-center gap-1 ${tab === 'leaderboard' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400'}`}><Trophy size={14} />Leaderboard</button>
-                    <div className="ml-auto flex items-center gap-1.5 text-sm font-mono font-bold" style={{ color: completed ? '#16a34a' : '#7c3aed' }}>
-                        <Clock size={14} />{displayTime}
+                    <button onClick={handleLeaderboardClick} className={`font-bold text-base flex items-center gap-1 ${tab === 'leaderboard' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400'}`}><Trophy size={14} />Leaderboard</button>
+                    <div className="ml-auto flex items-center gap-2 relative">
+                        <div className="flex items-center gap-1.5 text-sm font-mono font-bold" style={{ color: completed ? '#16a34a' : '#7c3aed' }}>
+                            <Clock size={14} />{displayTime}
+                        </div>
+                        {tab === 'puzzle' && isPlaying && !completed && (
+                            <button onClick={() => setShowMenu(!showMenu)} className="p-1 rounded-md hover:bg-slate-100 active:bg-slate-200">
+                                <MoreHorizontal size={18} className="text-slate-600" />
+                            </button>
+                        )}
+                        {showMenu && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                                <div className="absolute top-full right-0 mt-2 py-1 bg-white border border-slate-200 shadow-xl rounded-xl z-50 overflow-hidden min-w-[140px]">
+                                    <button onClick={handleCheckPuzzle} className="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100 w-full text-left transition-colors border-b border-slate-100">
+                                        Check Puzzle
+                                    </button>
+                                    <button onClick={handleRevealLetter} className="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100 w-full text-left transition-colors border-b border-slate-100">
+                                        Reveal Letter
+                                    </button>
+                                    <button onClick={handleGiveUp} className="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100 w-full text-left transition-colors">
+                                        Give Up
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 {tab === 'puzzle' ? (
-                    <div className="flex flex-col overflow-y-auto flex-1 min-h-0">
-                        {/* Completed banner */}
-                        {completed && (
-                            <div className="mx-4 mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-sm text-emerald-700 font-semibold">
-                                🎉 Solved in {formatTime(solveMs)}! +50 Pera Points earned
-                            </div>
-                        )}
+                    <div className="flex flex-col relative flex-1 min-h-0">
+                        <div className="flex flex-col overflow-y-auto flex-1">
+                            {/* Completed banner */}
+                            {completed && (
+                                <div className="mx-4 mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-sm text-emerald-700 font-semibold flex flex-col items-center">
+                                    <span>🎉 Solved in {formatTime(solveMs)}! +50 Pera Points earned</span>
+                                    {hintsUsed > 0 && <span className="text-xs mt-0.5 text-emerald-600 font-medium">({hintsUsed} {hintsUsed === 1 ? 'hint' : 'hints'} used)</span>}
+                                </div>
+                            )}
 
-                        {/* Grid */}
-                        <div className="flex justify-center px-4 pt-4 pb-2">
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 3, width: 275 }}>
-                                {puzzle.solution.map((row, r) => row.map((ans, c) => {
-                                    const isBlack = ans === null;
-                                    const isSelected = selected?.r === r && selected?.c === c;
-                                    const isHL = !isBlack && isCellHighlighted(r, c);
-                                    const hasError = errors[r][c];
-                                    const val = grid[r][c];
-                                    // Number overlay (which clues start here)
-                                    const clueNum = puzzle.clues.find(cl =>
-                                        cl.row === r && cl.col === c
-                                    )?.number;
-                                    return (
-                                        <div
-                                            key={`${r}-${c}`}
-                                            onClick={() => handleCellClick(r, c)}
-                                            style={{
-                                                width: 51, height: 51,
-                                                backgroundColor: isBlack ? '#1e293b' : isSelected ? '#7c3aed' : isHL ? '#ede9fe' : '#f8fafc',
-                                                border: isBlack ? 'none' : `2px solid ${hasError ? '#ef4444' : isSelected ? '#7c3aed' : '#cbd5e1'}`,
-                                                borderRadius: 6,
-                                                position: 'relative',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                cursor: isBlack ? 'default' : 'pointer',
-                                                userSelect: 'none',
-                                            }}
+                            {/* Grid */}
+                            <div className="flex justify-center px-4 pt-4 pb-2 relative">
+                                {!isPlaying && (
+                                    <div className="absolute inset-x-8 inset-y-6 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] rounded-xl border-2 border-slate-200 shadow-lg" style={{ pointerEvents: 'auto' }}>
+                                        <button
+                                            onClick={startTimer}
+                                            className="px-8 py-3 rounded-xl font-bold text-white shadow-md active:scale-95 transition-transform text-lg"
+                                            style={{ background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)' }}
                                         >
-                                            {!isBlack && clueNum && (
-                                                <span style={{ position: 'absolute', top: 2, left: 3, fontSize: 9, fontWeight: 700, color: isSelected ? 'white' : '#64748b' }}>{clueNum}</span>
-                                            )}
-                                            {!isBlack && (
-                                                <span style={{ fontSize: 18, fontWeight: 800, color: hasError ? '#ef4444' : isSelected ? 'white' : '#0f172a' }}>{val}</span>
+                                            {elapsedMs > 0 ? "Resume" : "Start"}
+                                        </button>
+                                    </div>
+                                )}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 3, width: 275, opacity: isPlaying ? 1 : 0.8 }}>
+                                    {puzzle.solution.map((row, r) => row.map((ans, c) => {
+                                        const isBlack = ans === null;
+                                        const isSelected = selected?.r === r && selected?.c === c;
+                                        const isHL = !isBlack && isCellHighlighted(r, c);
+                                        const hasError = errors[r][c];
+                                        const val = grid[r][c];
+                                        // Number overlay (which clues start here)
+                                        const clueNum = puzzle.clues.find(cl =>
+                                            cl.row === r && cl.col === c
+                                        )?.number;
+                                        return (
+                                            <div
+                                                key={`${r}-${c}`}
+                                                onClick={() => handleCellClick(r, c)}
+                                                style={{
+                                                    width: 51, height: 51,
+                                                    backgroundColor: isBlack ? '#1e293b' : isSelected ? '#7c3aed' : isHL ? '#ede9fe' : '#f8fafc',
+                                                    border: isBlack ? 'none' : `2px solid ${hasError ? '#ef4444' : isSelected ? '#7c3aed' : '#cbd5e1'}`,
+                                                    borderRadius: 6,
+                                                    position: 'relative',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    cursor: isBlack ? 'default' : 'pointer',
+                                                    userSelect: 'none',
+                                                }}
+                                            >
+                                                {!isBlack && clueNum && (
+                                                    <span style={{ position: 'absolute', top: 2, left: 3, fontSize: 9, fontWeight: 700, color: isSelected ? 'white' : '#64748b' }}>{clueNum}</span>
+                                                )}
+                                                {!isBlack && (
+                                                    <span style={{ fontSize: 18, fontWeight: 800, color: hasError ? '#ef4444' : isSelected ? 'white' : '#0f172a' }}>{val}</span>
+                                                )}
+                                            </div>
+                                        );
+                                    }))}
+                                </div>
+                            </div>
+
+                            {/* Clues */}
+                            <div className="px-4 pb-2 flex gap-3" style={{ visibility: isPlaying ? 'visible' : 'hidden' }}>
+                                <div className="flex-1">
+                                    <div className="text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Across</div>
+                                    {acrossClues.map(cl => (
+                                        <div key={cl.number + cl.dir} className="flex gap-1 text-xs mb-1">
+                                            <span className="font-bold text-violet-600 w-4 flex-shrink-0">{cl.number}</span>
+                                            <span className="text-slate-600 leading-tight">{cl.clue}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Down</div>
+                                    {downClues.map(cl => (
+                                        <div key={cl.number + cl.dir} className="flex gap-1 text-xs mb-1">
+                                            <span className="font-bold text-violet-600 w-4 flex-shrink-0">{cl.number}</span>
+                                            <span className="text-slate-600 leading-tight">{cl.clue}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* On-screen keyboard — QWERTY layout */}
+                            {!completed && (
+                                <div className="px-1.5 pb-4 pt-3 border-t border-slate-100 mt-auto bg-white">
+                                    {QWERTY_ROWS.map((row, rowIdx) => (
+                                        <div key={rowIdx} className="flex justify-center gap-x-[3px] mb-[6px] w-full">
+                                            {row.map((l: string) => (
+                                                <button key={l} onClick={() => handleKey(l)}
+                                                    className="h-11 rounded-md font-bold text-base bg-slate-100 text-slate-900 active:bg-slate-200 active:scale-95 transition-all flex-1 flex items-center justify-center max-w-[44px]"
+                                                >{l}</button>
+                                            ))}
+                                            {rowIdx === 2 && (
+                                                <button onClick={() => handleKey('BACK')}
+                                                    className="h-11 rounded-md font-bold text-base bg-slate-300 text-slate-800 active:bg-slate-400 active:scale-95 transition-all flex-1 flex items-center justify-center max-w-[54px] ml-1"
+                                                >⌫</button>
                                             )}
                                         </div>
-                                    );
-                                }))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-
-                        {/* Clues */}
-                        <div className="px-4 pb-2 flex gap-3">
-                            <div className="flex-1">
-                                <div className="text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Across</div>
-                                {acrossClues.map(cl => (
-                                    <div key={cl.number + cl.dir} className="flex gap-1 text-xs mb-1">
-                                        <span className="font-bold text-violet-600 w-4 flex-shrink-0">{cl.number}</span>
-                                        <span className="text-slate-600 leading-tight">{cl.clue}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Down</div>
-                                {downClues.map(cl => (
-                                    <div key={cl.number + cl.dir} className="flex gap-1 text-xs mb-1">
-                                        <span className="font-bold text-violet-600 w-4 flex-shrink-0">{cl.number}</span>
-                                        <span className="text-slate-600 leading-tight">{cl.clue}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* On-screen keyboard — QWERTY layout */}
-                        {!completed && (
-                            <div className="px-2 pb-4 pt-2 border-t border-slate-100">
-                                {QWERTY_ROWS.map((row, rowIdx) => (
-                                    <div key={rowIdx} className="flex justify-center gap-1 mb-1">
-                                        {row.map((l: string) => (
-                                            <button key={l} onClick={() => handleKey(l)}
-                                                className="h-10 rounded font-bold text-sm bg-slate-100 text-slate-900 active:scale-90 transition-transform"
-                                                style={{ minWidth: rowIdx === 2 ? 28 : 30, flex: '0 0 auto' }}
-                                            >{l}</button>
-                                        ))}
-                                        {rowIdx === 2 && (
-                                            <button onClick={() => handleKey('BACK')}
-                                                className="h-10 px-3 rounded font-bold text-xs bg-slate-200 text-slate-700 active:scale-90 transition-transform ml-1"
-                                            >⌫</button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 ) : (
                     // Leaderboard tab

@@ -79,7 +79,15 @@ export function getTodaysPuzzle(): CrosswordPuzzle {
 }
 
 const STORAGE_KEY = 'pera_crossword_results';
-export interface CrosswordResult { date: string; solveMs: number; completed: boolean; startedAt: number; }
+export interface CrosswordResult {
+    date: string;
+    solveMs: number;
+    completed: boolean;
+    startedAt: number;
+    gridState?: (string | null)[][];
+    elapsedSaved?: number;
+    hintsUsed?: number;
+}
 
 export function loadResult(puzzleDate: string): CrosswordResult | null {
     try { const map = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); return map[puzzleDate] || null; } catch { return null; }

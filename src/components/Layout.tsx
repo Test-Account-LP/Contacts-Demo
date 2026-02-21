@@ -15,9 +15,9 @@ export default function Layout({ children, onHomeClick, onMenuClick, onDiscoverC
     const { tokens } = useTheme();
 
     return (
-        <div className="min-h-screen flex justify-center font-sans p-4 sm:p-0" style={{ backgroundColor: tokens.primaryBackground }}>
+        <div className="min-h-[100dvh] flex items-center justify-center font-sans sm:p-4" style={{ backgroundColor: tokens.primaryBackground }}>
             <div
-                className="w-full max-w-md min-h-screen shadow-2xl relative overflow-hidden flex flex-col sm:rounded-[3rem] sm:my-8 sm:border-[8px] sm:border-slate-800 ring-1 ring-black/5"
+                className="w-full max-w-md h-[100dvh] sm:h-[850px] shadow-2xl relative overflow-hidden flex flex-col sm:rounded-[3rem] sm:border-[8px] sm:border-slate-800 ring-1 ring-black/5"
                 style={{ backgroundColor: tokens.secondaryBackground, color: tokens.primaryText }}
             >
                 <Header />
