@@ -30,9 +30,14 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
     const [elapsedMs, setElapsedMs] = useState(existingResult?.elapsedSaved ?? 0);
     const [hintsUsed, setHintsUsed] = useState(existingResult?.hintsUsed ?? 0);
     const [showMenu, setShowMenu] = useState(false);
+
     const leaderboardClicksRef = useRef(0);
     const startRef = useRef<number | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const hintsUsedRef = useRef(existingResult?.hintsUsed ?? 0);
+
+    // Keep ref in sync so callbacks always read fresh value
+    useEffect(() => { hintsUsedRef.current = hintsUsed; }, [hintsUsed]);
 
     const isPlaying = startRef.current !== null || completed;
 
@@ -75,12 +80,19 @@ export default function CrosswordScreen({ onBack, onPointsEarned }: Props) {
             if (timerRef.current) clearInterval(timerRef.current);
             setSolveMs(elapsed);
             setCompleted(true);
-            const result: CrosswordResult = { date: puzzle.date, solveMs: elapsed, completed: true, startedAt: startRef.current ?? Date.now(), hintsUsed };
+            const currentHints = hintsUsedRef.current;
+            const result: CrosswordResult = {
+                date: puzzle.date,
+                solveMs: elapsed,
+                completed: true,
+                startedAt: startRef.current ?? Date.now(),
+                hintsUsed: currentHints,
+            };
             saveResult(result);
             onPointsEarned(50);
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.4 }, colors: ['#7c3aed', '#fbbf24', '#06b6d4'] });
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 }, colors: ['#7c3aed', '#fbbf24', '#06b6d4'] });
         }
-    }, [puzzle, onPointsEarned, hintsUsed]);
+    }, [puzzle, onPointsEarned]);
 
     const handleCheckPuzzle = () => {
         const errs: boolean[][] = puzzle.solution.map((row, r) =>
