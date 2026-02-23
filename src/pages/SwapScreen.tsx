@@ -4,6 +4,7 @@ import SocialShareModal from '../components/SocialShareModal';
 
 interface SwapScreenProps {
     onBack: () => void;
+    onConnectClick: () => void;
     socials: { platform: 'X' | 'Instagram'; isConnected: boolean; handle: string }[];
 }
 
@@ -14,7 +15,7 @@ interface Token {
     balance: string;
 }
 
-export default function SwapScreen({ onBack, socials }: SwapScreenProps) {
+export default function SwapScreen({ onBack, onConnectClick, socials }: SwapScreenProps) {
     const [fromAmount, setFromAmount] = useState('');
     const [toAmount, setToAmount] = useState('');
     const [swapStep, setSwapStep] = useState<'input' | 'sending' | 'success'>('input');
@@ -43,9 +44,6 @@ export default function SwapScreen({ onBack, socials }: SwapScreenProps) {
         }, 3000);
     };
 
-    const handleFinish = () => {
-        setIsShareModalOpen(true);
-    };
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 font-sans">
@@ -173,12 +171,20 @@ export default function SwapScreen({ onBack, socials }: SwapScreenProps) {
                         You swapped {fromAmount} {fromToken.symbol} for {toAmount} {toToken.symbol}.
                     </p>
 
-                    <button
-                        onClick={handleFinish}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[28px] font-black text-lg shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all"
-                    >
-                        Success
-                    </button>
+                    <div className="w-full space-y-3">
+                        <button
+                            onClick={() => {
+                                if (socials.some(s => s.isConnected)) {
+                                    setIsShareModalOpen(true);
+                                } else {
+                                    onConnectClick();
+                                }
+                            }}
+                            className="w-full py-5 bg-slate-900 text-white rounded-[28px] font-black text-lg shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all"
+                        >
+                            {socials.some(s => s.isConnected) ? 'Share to Socials' : 'Connect socials to share'}
+                        </button>
+                    </div>
                     <button
                         onClick={onBack}
                         className="mt-4 text-slate-400 font-bold hover:text-slate-600 transition-colors"

@@ -380,12 +380,14 @@ function App() {
         {currentScreen === 'swap' && (
           <SwapScreen
             onBack={() => navigateTo('home')}
+            onConnectClick={() => navigateTo('profile-contacts')}
             socials={socials}
           />
         )}
         {currentScreen === 'staking' && (
           <StakingFlow
             onBack={() => navigateTo('menu')}
+            onConnectClick={() => navigateTo('profile-contacts')}
             socials={socials}
           />
         )}

@@ -4,10 +4,11 @@ import SocialShareModal from '../components/SocialShareModal';
 
 interface StakingFlowProps {
     onBack: () => void;
+    onConnectClick: () => void;
     socials: { platform: 'X' | 'Instagram'; isConnected: boolean; handle: string }[];
 }
 
-export default function StakingFlow({ onBack, socials }: StakingFlowProps) {
+export default function StakingFlow({ onBack, onConnectClick, socials }: StakingFlowProps) {
     const [step, setStep] = useState<'intro' | 'input' | 'transaction' | 'success'>('intro');
     const [stakeAmount, setStakeAmount] = useState('');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -164,12 +165,20 @@ export default function StakingFlow({ onBack, socials }: StakingFlowProps) {
                         You staked {stakeAmount} ALGO to help secure the network.
                     </p>
 
-                    <button
-                        onClick={() => setIsShareModalOpen(true)}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[28px] font-black text-lg shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all"
-                    >
-                        Success
-                    </button>
+                    <div className="w-full space-y-3">
+                        <button
+                            onClick={() => {
+                                if (socials.some(s => s.isConnected)) {
+                                    setIsShareModalOpen(true);
+                                } else {
+                                    onConnectClick();
+                                }
+                            }}
+                            className="w-full py-5 bg-slate-900 text-white rounded-[28px] font-black text-lg shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all"
+                        >
+                            {socials.some(s => s.isConnected) ? 'Share activity' : 'Connect socials to share'}
+                        </button>
+                    </div>
                     <button
                         onClick={onBack}
                         className="mt-6 text-slate-400 font-bold hover:text-slate-600 transition-colors"
