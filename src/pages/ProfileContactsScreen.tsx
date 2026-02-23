@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ArrowLeft, User, Plus, Edit2, QrCode, Clock, Lock, Users, Globe, Star, Crown } from 'lucide-react';
+import { ArrowLeft, User, Plus, Edit2, QrCode, Clock, Lock, Users, Globe, Star, Crown, ShieldCheck } from 'lucide-react';
 import type { Contact } from '../App';
 import AddContactModal from '../components/AddContactModal';
 import QRCodeModal from '../components/QRCodeModal';
+import KycModal from '../components/KycModal';
 
 export interface UserProfile {
     name: string;
@@ -27,6 +28,8 @@ interface ProfileContactsScreenProps {
     onTryPro: (feature: string) => void;
     onContactClick: (id: string) => void;
     onPointsClick: () => void;
+    isKycVerified: boolean;
+    onKycVerified: () => void;
 }
 
 export default function ProfileContactsScreen({
@@ -39,10 +42,13 @@ export default function ProfileContactsScreen({
     isPro,
     onTryPro,
     onContactClick,
-    onPointsClick
+    onPointsClick,
+    isKycVerified,
+    onKycVerified,
 }: ProfileContactsScreenProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+    const [isKycModalOpen, setIsKycModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
     const [editName, setEditName] = useState(profile.name);
@@ -95,14 +101,31 @@ export default function ProfileContactsScreen({
                 <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
 
-                {/* Edit Button */}
+                {/* KYC Icon Button + Edit Button */}
                 {!isEditing && (
-                    <button
-                        onClick={() => setIsEditing(true)}
-                        className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full backdrop-blur-sm z-20"
-                    >
-                        <Edit2 size={18} />
-                    </button>
+                    <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                        {/* KYC silhouette badge */}
+                        <button
+                            onClick={() => !isKycVerified && setIsKycModalOpen(true)}
+                            className={`relative p-2 rounded-full transition-colors backdrop-blur-sm ${isKycVerified ? 'bg-emerald-500/20 text-emerald-400 cursor-default' : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'}`}
+                            title={isKycVerified ? 'KYC Verified' : 'Verify Identity'}
+                        >
+                            <ShieldCheck size={18} />
+                            {/* Badge overlay */}
+                            {isKycVerified ? (
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold ring-2 ring-slate-900">✓</span>
+                            ) : (
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold ring-2 ring-slate-900">?</span>
+                            )}
+                        </button>
+                        {/* Edit */}
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="p-2 text-slate-400 hover:text-white transition-colors bg-white/5 rounded-full backdrop-blur-sm"
+                        >
+                            <Edit2 size={18} />
+                        </button>
+                    </div>
                 )}
 
                 {/* Level Badge - Clickable to go to Points Screen */}
@@ -362,6 +385,15 @@ export default function ProfileContactsScreen({
                 isOpen={isQRModalOpen}
                 onClose={() => setIsQRModalOpen(false)}
                 address="DUA4...2ESM"
+            />
+
+            <KycModal
+                isOpen={isKycModalOpen}
+                onClose={() => setIsKycModalOpen(false)}
+                onVerified={() => {
+                    onKycVerified();
+                    setIsKycModalOpen(false);
+                }}
             />
         </div>
     );

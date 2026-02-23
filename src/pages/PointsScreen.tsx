@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check, Info } from 'lucide-react';
-import type { UserProfile } from '../App';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Trophy, Zap, Repeat, Send, Database, Globe, Share2, Shield, BookOpen, Check, Info, CheckCircle2 } from 'lucide-react';
+import type { UserProfile, KycActivityRow } from '../App';
 import QuestModal from '../components/QuestModal';
 import LevelBreakdownModal from '../components/LevelBreakdownModal';
 import { quests, type Quest } from '../data/quests';
@@ -10,14 +10,24 @@ interface PointsScreenProps {
     onBack: () => void;
     onQuestComplete: (questId: string, points: number) => void;
     onUserClick?: (contactId: string) => void;
+    kycActivityRow?: KycActivityRow | null;
 }
 
-export default function PointsScreen({ profile, onBack, onQuestComplete, onUserClick }: PointsScreenProps) {
+export default function PointsScreen({ profile, onBack, onQuestComplete, onUserClick, kycActivityRow }: PointsScreenProps) {
     const POINTS_PER_LEVEL = 15000;
     const currentLevelPoints = profile.points % POINTS_PER_LEVEL;
     const progress = (currentLevelPoints / POINTS_PER_LEVEL) * 100;
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
     const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
+    const [highlightKyc, setHighlightKyc] = useState(false);
+
+    useEffect(() => {
+        if (kycActivityRow?.isNew) {
+            setHighlightKyc(true);
+            const t = setTimeout(() => setHighlightKyc(false), 3000);
+            return () => clearTimeout(t);
+        }
+    }, [kycActivityRow]);
 
     const earnActions = [
         { icon: <Repeat size={18} className="text-blue-500" />, title: 'Swap Assets', points: '+50 pts', limit: 'Max 5/day' },
@@ -103,6 +113,30 @@ export default function PointsScreen({ profile, onBack, onQuestComplete, onUserC
                         </div>
                     </div>
                 </div>
+
+                {/* Recent Activity (KYC bonus row) */}
+                {kycActivityRow && (
+                    <div>
+                        <h3 className="font-bold text-slate-900 mb-3 ml-1 flex items-center gap-2">
+                            <Shield size={18} className="text-teal-600" />
+                            Recent Activity
+                        </h3>
+                        <div className={`metallic-card rounded-2xl p-4 flex items-center gap-4 transition-all duration-500 ${highlightKyc ? 'ring-2 ring-teal-400 ring-offset-2 bg-teal-50/30' : ''}`}>
+                            {/* Icon */}
+                            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center shrink-0">
+                                <CheckCircle2 size={20} className="text-teal-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="font-bold text-slate-900 text-sm">KYC Verification Bonus</div>
+                                <div className="text-xs text-slate-400 mt-0.5">{kycActivityRow.date}</div>
+                            </div>
+                            <div className="text-right shrink-0">
+                                <div className="font-bold text-emerald-600 text-sm">+{kycActivityRow.points.toLocaleString()} pts</div>
+                                <div className="text-[10px] bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-bold mt-1 inline-block">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Learning Quests (New Section) */}
                 <div>

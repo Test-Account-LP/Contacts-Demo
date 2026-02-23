@@ -57,6 +57,12 @@ export interface UserProfile {
   hasSeenPeraQuestIntro: boolean;
 }
 
+export interface KycActivityRow {
+  date: string;
+  points: number;
+  isNew: boolean;
+}
+
 export type Theme = 'default' | 'retro' | 'space' | 'bmx' | 'train' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 
 function App() {
@@ -161,6 +167,35 @@ function App() {
   };
 
   const [isPro, setIsPro] = useState(false);
+
+  // KYC State
+  const [isKycVerified, setIsKycVerified] = useState(false);
+  const [peraUsdOptedIn, setPeraUsdOptedIn] = useState(false);
+  const [kycActivityRow, setKycActivityRow] = useState<KycActivityRow | null>(null);
+
+  const handleKycVerified = () => {
+    const today = new Date();
+    const formatted = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    setIsKycVerified(true);
+    setProfile(prev => ({ ...prev, points: prev.points + 1000 }));
+    setKycActivityRow({ date: formatted, points: 1000, isNew: true });
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.5 },
+      colors: ['#2dd4bf', '#fbbf24', '#10b981']
+    });
+  };
+
+  const handlePeraUsdOptIn = () => {
+    setPeraUsdOptedIn(true);
+    confetti({
+      particleCount: 150,
+      spread: 90,
+      origin: { y: 0.6 },
+      colors: ['#2dd4bf', '#fbbf24', '#f472b6', '#818cf8']
+    });
+  };
   const [showProModal, setShowProModal] = useState(false);
   const [proFeatureName, setProFeatureName] = useState('');
 
@@ -276,7 +311,13 @@ function App() {
         }
       >
         {currentScreen === 'home' && (
-          <Home onMoreClick={() => navigateTo('menu')} />
+          <Home
+            onMoreClick={() => navigateTo('menu')}
+            isKycVerified={isKycVerified}
+            peraUsdOptedIn={peraUsdOptedIn}
+            onKycVerified={handleKycVerified}
+            onPeraUsdOptIn={handlePeraUsdOptIn}
+          />
         )}
         {(currentScreen === 'discover' || currentScreen === 'spin-wheel' || currentScreen === 'crossword' || currentScreen === 'brick-breaker') && (
           <DiscoverScreen
@@ -306,6 +347,8 @@ function App() {
             onTryPro={(feature) => verifyProAccess(feature)}
             onContactClick={handleContactClick}
             onPointsClick={() => navigateTo('points-dashboard')}
+            isKycVerified={isKycVerified}
+            onKycVerified={handleKycVerified}
           />
         )}
         {currentScreen === 'themes-screen' && (
@@ -345,6 +388,7 @@ function App() {
             onBack={() => navigateTo('profile-contacts')}
             onQuestComplete={handleQuestComplete}
             onUserClick={handleContactClick}
+            kycActivityRow={kycActivityRow}
           />
         )}
 
