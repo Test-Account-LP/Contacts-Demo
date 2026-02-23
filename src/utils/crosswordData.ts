@@ -74,8 +74,15 @@ export const PUZZLES: CrosswordPuzzle[] = [
 
 export function getTodaysPuzzle(): CrosswordPuzzle {
     const today = new Date();
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-    return PUZZLES[dayOfYear % PUZZLES.length];
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayKey = `${yyyy}-${mm}-${dd}`;
+    const dayOfYear = Math.floor((today.getTime() - new Date(yyyy, 0, 0).getTime()) / 86400000);
+    const puzzle = PUZZLES[dayOfYear % PUZZLES.length];
+    // Override the static 'puzzle-N' key with today's real calendar date
+    // so each calendar day gets its own fresh save slot in localStorage
+    return { ...puzzle, date: todayKey };
 }
 
 const STORAGE_KEY = 'pera_crossword_results';
