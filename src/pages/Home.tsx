@@ -8,13 +8,14 @@ interface HomeProps {
     peraUsdOptedIn: boolean;
     onKycVerified: () => void;
     onPeraUsdOptIn: () => void;
+    onSwapClick: () => void;
 }
 
-export default function Home({ onMoreClick, isKycVerified, peraUsdOptedIn, onKycVerified, onPeraUsdOptIn }: HomeProps) {
+export default function Home({ onMoreClick, isKycVerified, peraUsdOptedIn, onKycVerified, onPeraUsdOptIn, onSwapClick }: HomeProps) {
     return (
         <div className="pb-20">
             <PortfolioSummary />
-            <ActionButtons onMoreClick={onMoreClick} />
+            <ActionButtons onMoreClick={onMoreClick} onSwapClick={onSwapClick} />
             <AssetsList
                 isKycVerified={isKycVerified}
                 peraUsdOptedIn={peraUsdOptedIn}

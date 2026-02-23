@@ -1,4 +1,4 @@
-import { ScanLine, Settings, CreditCard, Layers, ArrowRightLeft, Download, Upload, Users, User, Plus, QrCode, Palette, Lock, BookOpen } from 'lucide-react';
+import { ScanLine, Settings, CreditCard, Layers, ArrowRightLeft, Download, Upload, Users, User, Plus, QrCode, Palette, Lock, BookOpen, ShieldCheck } from 'lucide-react';
 import { useTheme } from '../theme/ThemeContext';
 
 interface MenuScreenProps {
@@ -7,12 +7,14 @@ interface MenuScreenProps {
     onTryPro: (feature: string) => void;
     onThemesClick: () => void;
     onPeraRewardsClick: () => void;
+    onStakeClick: () => void;
 }
 
-export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick, onPeraRewardsClick }: MenuScreenProps) {
+export default function MenuScreen({ onProfileClick, isPro, onTryPro, onThemesClick, onPeraRewardsClick, onStakeClick }: MenuScreenProps) {
     const { tokens } = useTheme();
     console.log('Rendering MenuScreen - Updated'); // Debugging update
     const menuItems = [
+        { icon: <ShieldCheck size={22} />, label: 'Stake ALGO', onClick: onStakeClick, badge: '4.2%' },
         { icon: <Layers size={22} />, label: 'NFTs', onClick: () => console.log('NFTs') },
         { icon: <ArrowRightLeft size={22} />, label: 'Transfer', onClick: () => console.log('Transfer'), badge: 'NEW' },
         { icon: <Download size={22} />, label: 'Buy Algo', onClick: () => console.log('Buy Algo') },

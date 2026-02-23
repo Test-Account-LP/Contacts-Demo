@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ArrowLeft, User, Plus, Edit2, QrCode, Clock, Lock, Users, Globe, Star, Crown, ShieldCheck } from 'lucide-react';
-import type { Contact } from '../App';
+import { ArrowLeft, User, Plus, Edit2, QrCode, Clock, Lock, Users, Globe, Star, Crown, ShieldCheck, Twitter, Instagram, Loader2, MoreHorizontal } from 'lucide-react';
+import type { Contact, SocialConnection } from '../App';
 import AddContactModal from '../components/AddContactModal';
 import QRCodeModal from '../components/QRCodeModal';
 import KycModal from '../components/KycModal';
@@ -30,6 +30,9 @@ interface ProfileContactsScreenProps {
     onPointsClick: () => void;
     isKycVerified: boolean;
     onKycVerified: () => void;
+    socials: SocialConnection[];
+    onConnectSocial: (platform: 'X' | 'Instagram', handle: string) => void;
+    onDisconnectSocial: (platform: 'X' | 'Instagram') => void;
 }
 
 export default function ProfileContactsScreen({
@@ -45,6 +48,9 @@ export default function ProfileContactsScreen({
     onPointsClick,
     isKycVerified,
     onKycVerified,
+    socials,
+    onConnectSocial,
+    onDisconnectSocial,
 }: ProfileContactsScreenProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
@@ -55,9 +61,30 @@ export default function ProfileContactsScreen({
     const [editBio, setEditBio] = useState(profile.bio);
     const [editPrivacy, setEditPrivacy] = useState<'public' | 'friends' | 'private'>(profile.privacy || 'public');
 
+    const [connectingPlatform, setConnectingPlatform] = useState<'X' | 'Instagram' | null>(null);
+    const [showDisconnectConfirm, setShowDisconnectConfirm] = useState<'X' | 'Instagram' | null>(null);
+    const [tooltipContent, setTooltipContent] = useState<string | null>(null);
+
     const handleSaveProfile = () => {
         onUpdateProfile({ name: editName, bio: editBio, privacy: editPrivacy });
         setIsEditing(false);
+    };
+
+    const handleConnect = (platform: 'X' | 'Instagram') => {
+        setConnectingPlatform(platform);
+        // OAuth simulation
+        setTimeout(() => {
+            const mockHandle = platform === 'X' ? '@perafan123' : '@perafan_official_handle_long';
+            onConnectSocial(platform, mockHandle);
+            setConnectingPlatform(null);
+        }, 2500);
+    };
+
+    const formatHandle = (handle: string) => {
+        if (handle.length > 18) {
+            return handle.substring(0, 15) + '...';
+        }
+        return handle;
     };
 
     const handleAddStart = () => {
@@ -277,6 +304,109 @@ export default function ProfileContactsScreen({
                     </div>
                 )}
             </div>
+
+            {/* Connected Socials Section */}
+            <div className="px-4 mb-8">
+                <h3 className="text-xl font-bold text-slate-900 mb-4">Connected Socials</h3>
+                <div className="space-y-3">
+                    {socials.map((social) => (
+                        <div
+                            key={social.platform}
+                            className="p-4 rounded-2xl flex items-center justify-between hover:shadow-md transition-all border border-slate-100 bg-slate-50/50"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`p-2.5 rounded-2xl ${social.isConnected ? 'bg-white shadow-sm' : 'bg-slate-200/50 text-slate-400'}`}>
+                                    {social.platform === 'X' ? (
+                                        <Twitter size={24} className={social.isConnected ? 'text-black' : ''} />
+                                    ) : (
+                                        <Instagram size={24} className={social.isConnected ? 'text-pink-600' : ''} />
+                                    )}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-slate-900">{social.platform}</span>
+                                    {social.isConnected ? (
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Connected</span>
+                                            <div
+                                                className="text-sm text-slate-500 font-medium cursor-pointer relative"
+                                                onClick={() => setTooltipContent(social.handle)}
+                                            >
+                                                {formatHandle(social.handle)}
+                                                {tooltipContent === social.handle && (
+                                                    <div className="absolute bottom-full mb-2 left-0 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl whitespace-nowrap z-50 animate-in fade-in zoom-in-95 duration-200 font-sans">
+                                                        {social.handle}
+                                                        <div className="absolute top-full left-4 border-4 border-transparent border-t-slate-900"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <span className="text-xs text-slate-400">Not Connected</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {connectingPlatform === social.platform ? (
+                                <div className="flex items-center gap-2 px-4 py-2 text-teal-600 font-bold text-sm">
+                                    <Loader2 size={16} className="animate-spin" />
+                                    Connecting...
+                                </div>
+                            ) : social.isConnected ? (
+                                <button
+                                    onClick={() => setShowDisconnectConfirm(social.platform)}
+                                    className="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors"
+                                >
+                                    Disconnect
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleConnect(social.platform)}
+                                    className="px-6 py-2 bg-teal-500 text-white font-bold rounded-xl text-sm hover:bg-teal-600 transition-all shadow-lg shadow-teal-500/20 active:scale-95"
+                                >
+                                    Connect
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Disconnect Confirmation Modal */}
+            {showDisconnectConfirm && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+                            <MoreHorizontal size={32} />
+                        </div>
+                        <h4 className="text-xl font-bold text-center mb-2">Disconnect Account?</h4>
+                        <p className="text-slate-500 text-center text-sm mb-6">
+                            Are you sure you want to disconnect your {showDisconnectConfirm} account?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDisconnectConfirm(null)}
+                                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    onDisconnectSocial(showDisconnectConfirm);
+                                    setShowDisconnectConfirm(null);
+                                }}
+                                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                            >
+                                Disconnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Click outside to close tooltip */}
+            {tooltipContent && (
+                <div className="fixed inset-0 z-40" onClick={() => setTooltipContent(null)} />
+            )}
 
             {/* Contacts Section */}
             <div className="px-4">

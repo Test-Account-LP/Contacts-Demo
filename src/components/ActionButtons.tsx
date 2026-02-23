@@ -3,13 +3,14 @@ import { useTheme } from '../theme/ThemeContext';
 
 interface ActionButtonsProps {
     onMoreClick: () => void;
+    onSwapClick: () => void;
 }
 
-export default function ActionButtons({ onMoreClick }: ActionButtonsProps) {
+export default function ActionButtons({ onMoreClick, onSwapClick }: ActionButtonsProps) {
     const { tokens } = useTheme();
 
     const actions = [
-        { icon: <ArrowRightLeft size={24} />, label: 'Swap', onClick: () => console.log('Swap') },
+        { icon: <ArrowRightLeft size={24} />, label: 'Swap', onClick: onSwapClick },
         { icon: <Send size={24} />, label: 'Send', onClick: () => console.log('Send') },
         { icon: <Download size={24} />, label: 'Receive', onClick: () => console.log('Receive') },
         { icon: <MoreHorizontal size={24} />, label: 'More', onClick: onMoreClick },

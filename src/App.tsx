@@ -16,9 +16,17 @@ import DiscoverScreen from './pages/DiscoverScreen';
 import BrickBreakerScreen from './pages/BrickBreakerScreen';
 import SpinWheelScreen from './pages/SpinWheelScreen';
 import CrosswordScreen from './pages/CrosswordScreen';
+import SwapScreen from './pages/SwapScreen';
+import StakingFlow from './pages/StakingFlow';
 import { ThemeProvider } from './theme/ThemeContext';
 
-type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover' | 'spin-wheel' | 'crossword' | 'brick-breaker';
+type Screen = 'home' | 'menu' | 'profile-contacts' | 'purchase-flow' | 'contact-details' | 'chat' | 'points-dashboard' | 'themes-screen' | 'pera-quests' | 'discover' | 'spin-wheel' | 'crossword' | 'brick-breaker' | 'swap' | 'staking';
+
+export interface SocialConnection {
+  platform: 'X' | 'Instagram';
+  handle: string;
+  isConnected: boolean;
+}
 
 export interface Transaction {
   date: string;
@@ -81,6 +89,11 @@ function App() {
     completedQuests: [],
     hasSeenPeraQuestIntro: false
   });
+
+  const [socials, setSocials] = useState<SocialConnection[]>([
+    { platform: 'X', handle: '', isConnected: false },
+    { platform: 'Instagram', handle: '', isConnected: false }
+  ]);
 
   const [contacts, setContacts] = useState<Contact[]>([
     { id: '1', name: 'Alice', type: 'user', handle: 'alice.algo', address: 'ALICE...W34' },
@@ -226,6 +239,14 @@ function App() {
     navigateTo('profile-contacts');
   };
 
+  const handleConnectSocial = (platform: 'X' | 'Instagram', handle: string) => {
+    setSocials(prev => prev.map(s => s.platform === platform ? { ...s, handle, isConnected: true } : s));
+  };
+
+  const handleDisconnectSocial = (platform: 'X' | 'Instagram') => {
+    setSocials(prev => prev.map(s => s.platform === platform ? { ...s, handle: '', isConnected: false } : s));
+  };
+
   const handleContactClick = (contactId: string) => {
     setSelectedContactId(contactId);
     navigateTo('contact-details');
@@ -317,6 +338,7 @@ function App() {
             peraUsdOptedIn={peraUsdOptedIn}
             onKycVerified={handleKycVerified}
             onPeraUsdOptIn={handlePeraUsdOptIn}
+            onSwapClick={() => navigateTo('swap')}
           />
         )}
         {(currentScreen === 'discover' || currentScreen === 'spin-wheel' || currentScreen === 'crossword' || currentScreen === 'brick-breaker') && (
@@ -332,7 +354,8 @@ function App() {
             isPro={isPro}
             onTryPro={(feature) => verifyProAccess(feature)}
             onThemesClick={() => navigateTo('themes-screen')}
-            onPeraRewardsClick={() => navigateTo('points-dashboard')}
+            onPeraRewardsClick={() => navigateTo('pera-quests')}
+            onStakeClick={() => navigateTo('staking')}
           />
         )}
         {currentScreen === 'profile-contacts' && (
@@ -349,6 +372,21 @@ function App() {
             onPointsClick={() => navigateTo('points-dashboard')}
             isKycVerified={isKycVerified}
             onKycVerified={handleKycVerified}
+            socials={socials}
+            onConnectSocial={handleConnectSocial}
+            onDisconnectSocial={handleDisconnectSocial}
+          />
+        )}
+        {currentScreen === 'swap' && (
+          <SwapScreen
+            onBack={() => navigateTo('home')}
+            socials={socials}
+          />
+        )}
+        {currentScreen === 'staking' && (
+          <StakingFlow
+            onBack={() => navigateTo('menu')}
+            socials={socials}
           />
         )}
         {currentScreen === 'themes-screen' && (
